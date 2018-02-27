@@ -30,7 +30,7 @@ def get_area():
     return jsonify(area["geojson"])
 
 
-@app.route('/get_tweet_count')
+@app.route('/get_geo_tweet_count')
 def get_tweet_count():
 
     start = int(request.args["start"])
@@ -39,13 +39,7 @@ def get_tweet_count():
     start_date = datetime.datetime.fromtimestamp(start//1000)
     end_date = datetime.datetime.fromtimestamp(end//1000)
 
-    start_month = start_date.month
-    start_day = start_date.day
-
-    end_month = end_date.month
-    end_day = end_date.day
-
-    data = ssm.get_tweet_count(start_month,end_month,start_day,end_day,0,23)
+    data = ssm.get_tweet_count(start_date,end_date)
     return jsonify(data)
 
 
@@ -54,6 +48,7 @@ def get_tweet_count():
 def annotate_tweets():
     ssm.annotate_tweets_location()
     return jsonify({"status":"ok"})
+
 
 # Custom methods for the evaluating the cassifier
 @app.route('/tweet_evaluation')

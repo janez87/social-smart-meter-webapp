@@ -1,5 +1,13 @@
 #map { height: 360px; }
-
+#chart {
+    width:100%;
+    min-width: 310px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+body {
+    background-color: rgb(234, 234, 234);
+}
 .container {
     padding-top: 100px;
 }

@@ -10,26 +10,55 @@ class SocialSmartMeter:
     def annotate_tweet_location(self, tweet):
         pass
 
-    def get_tweet_count(self, start_month, end_month,start_day, end_day,start_hour,end_hour):
+    def get_tweet_count(self, start_date, end_date):
 
         query = {
-            "_id.month": {
-                "$gte": start_month,
-                "$lt": end_month
-            },
-            "_id.day":{
-                "$gte":start_day,
-                "$lt":end_day
-            },
-            "_id.hour":{
-                "$gte":start_hour,
-                "$lt":end_hour
+            "$match": {
+                "date": {
+                    "$gte": start_date,
+                    "$lt": end_date
+                }
             }
         }
 
-        print(query)
+        group = {
+            "$group": {
+                "_id": {
+                    "area_name": "$_id.area_name",
+                    "area_id": "$_id.area_id",
+                    "category":"$_id.categories"
+                },
+                "count": {
+                    "$sum": "$count"
+                }
+            }
+        }
 
-        return list(self.db["tweet_count"].find(query))
+        project = {
+            "$project": {
+                "area_name": "$_id.area_name",
+                "area_id": "$_id.area_id",
+                "category":"$_id.category",
+                "count": 1,
+                "_id": 0
+            }
+        }
+
+        counts = list(self.db["tweet_count"].aggregate([query, group, project]))
+
+        area = self.db["area"].find_one({"name": configuration.AREA},{"_id":0})
+
+        for a in area["geojson"]["features"]:
+            considered_area = list(filter(lambda x: a["id"] == x["area_id"], counts))
+            total = 0
+            for ca in considered_area:
+                print(ca)
+                total += ca["count"]
+                a[ca["category"]] = ca["count"]
+
+            a["count"] = total
+
+        return area["geojson"]
 
     # Offline methods
     def annotate_tweets_location(self):
@@ -40,10 +69,19 @@ class SocialSmartMeter:
         areas = city["geojson"]["features"]
 
         for area in areas:
-            print("Selecting tweets from area",area["properties"]["name"])
-            self.db["tweet"].update({
-                "coordinates": {"$geoWithin": {"$geometry": area["geometry"]}}
-            }, {"$set": {"area_name": area["properties"]["name"], "area_id": area["id"]}}
-                , multi=True, upsert=False)
+            print("Selecting tweets from area", area["properties"]["name"])
 
-
+            query = {
+                "$or": [{
+                    "coordinates": {
+                        "$geoWithin": {
+                            "$geometry": area["geometry"]
+                        }
+                    }
+                }, {
+                    "place.name": area["properties"]["name"]
+                }
+                ]
+            }
+            self.db["tweet"].update(query, {"$set": {"area_name": area["properties"]["name"], "area_id": area["id"]}}
+                                    , multi=True, upsert=False)

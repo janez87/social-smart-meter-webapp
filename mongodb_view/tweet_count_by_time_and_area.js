@@ -1,0 +1,36 @@
+db.createView("tweet_count","tweet",[
+    {
+        $match:{
+            area_name:{
+                $exists:true
+            }
+        }
+
+    },
+    {
+	$group:{
+		_id:{
+		  year:{$year:"$date"},
+		  hour:{$hour:"$date"},
+		  day:{$dayOfMonth:"$date"},
+		  month:{$month:"$date"},
+		  area_name:"$area_name",
+		  area_id:"$area_id"
+		},
+		count:{
+			$sum:1
+		}
+	}},{
+		$project:{
+			count:1,
+			date: {$dateFromParts:{
+				year:"$_id.year",
+				month:"$_id.month",
+				day:"$_id.day",
+				minute:59,
+				second:59,
+				millisecond:999,
+				timezone:"+01"
+			}}
+		}
+	}])
