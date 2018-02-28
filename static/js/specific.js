@@ -1,75 +1,98 @@
 var myMap;
 var geoJson;
 var data;
+var wordCountData;
 
-function createChart(features){
+function getWordCount(category,start,end){
 
-    var mobility = 0
-    var dwelling = 0
-    var food = 0
-    var leisure = 0
+    $.get("/get_words_count?start="+start+"&end="+end+"&category="+category,function(data){
 
-    features.forEach(function(d){
-        mobility+= d["MOBILITY"] || 0
-        dwelling+= d["DWELLING"] || 0
-        leisure+= d["LEISURE"] || 0
-        food+= d["FOOD"] || 0
+        wordCountData = data
+        createChart(data)
     })
+}
 
-    var chartData = [
-        ["Food",food],
-        ["Mobility",mobility],
-        ["Leisure",leisure],
-        ["Dwelling",dwelling]
-    ]
-    console.log(chartData)
+function createChart(data,area){
+
+    var chartData = _.chain(data)
+
+    if(area){
+        console.log(area)
+        chartData = chartData.filter(function(d){
+            return d.area_name === area
+        })
+    }
+
+    chartData = chartData.groupBy("token")
+    .map(function(value, key) {
+        return [key, _.reduce(value, function(result, currentObject) {
+            return {
+                count: result.count + currentObject.count,
+            }
+        }, {
+            count: 0,
+        })];
+    })
+    .sortBy(function(d){
+        return -d[1].count
+    })
+    .value();
+
+    chartData = chartData.slice(0,10)
+
+    var x = []
+    var y = []
+
+    for(var i=0;i<chartData.length;i++){
+        x.push(chartData[i][0])
+        y.push(chartData[i][1].count)
+    }
 
 
 
     Highcharts.chart('chart', {
+        chart: {
+            type: 'bar',
+            backgroundColor: "#eaeaea",
+
+        },
+        title: {
+            text: 'Top 10 Frequent Terms'
+        },
+        xAxis: {
+            categories: x,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Frequency',
+                align: 'high'
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
         credits: {
             enabled: false
         },
-        chart: {
-            borderColor:"#eaeaea",
-            backgroundColor: "#eaeaea",
-            plotBorderWidth: 0,
-            plotShadow: false
-        },
-        title: {
-            text: 'Distribution of Energy Consumption Types',
-            align: 'center',
-            verticalAlign: 'middle',
-            y: 110
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    enabled: true,
-                    distance: -50,
-                    style: {
-                        fontWeight: 'bold',
-                        color: 'white'
-                    }
-                },
-                startAngle: -90,
-                endAngle: 90,
-                center: ['50%', '75%'],
-            }
-        },
         series: [{
-            type: 'pie',
-            name: 'Percentage',
-            innerSize: '50%',
-            data: chartData
+            name: 'Frequency',
+            data: y
         }]
     });
-
-
 }
+
+
 function create_map(){
 
     myMap = L.map('map').setView([52.3663589, 4.8680607], 11);
@@ -83,13 +106,12 @@ function create_map(){
 
 }
 
-function show_tweet_count(start,end){
-
+function show_tweet_count(category, start,end){
 
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 
 
-    $.get("/get_geo_tweet_count?start="+start+"&end="+end,function(res){
+    $.get("/get_geo_tweet_count?start="+start+"&end="+end+"&category="+category,function(res){
         console.log(res)
         data=res
          if(geoJson){
@@ -100,9 +122,9 @@ function show_tweet_count(start,end){
             geoJson = L.geoJson(data,{style:style,onEachFeature:onEachFeature}).addTo(myMap)
          }
 
-        createChart(data.features)
-
     })
+
+     getWordCount(category,start,end);
 
 }
 function init(){
@@ -124,9 +146,9 @@ function init(){
             'This Month': [moment().startOf('month'), moment().endOf('month')],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
-    }, show_tweet_count);
+    }, show_tweet_count.bind(null,category));
 
-    show_tweet_count(start, end);
+    show_tweet_count(category,start, end);
 }
 
 
@@ -183,14 +205,13 @@ function resetHighlight(e) {
 function zoomToFeature(e) {
     myMap.fitBounds(e.target.getBounds());
     var name = e.target.feature.properties.name
-    $("#area").text(name+" - Overall Energy Consumption")
+    $("#area").text(name+" - "+$("#map").data("category")+" Energy Consumption")
 
     var selected = data.features.find(function(a){
         return a.properties.name === name
     })
-    createChart([selected])
+    createChart(wordCountData,selected.properties.name)
 }
-
 function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,

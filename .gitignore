@@ -97,5 +97,6 @@ ENV/
 #Visual Code settings
 .vscode/
 
+amsterdam.geojson.txt
 #configuration file
 configuration/configuration.py

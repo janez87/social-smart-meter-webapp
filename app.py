@@ -18,11 +18,23 @@ db = client[configuration.DB_NAME]
 
 ssm = SocialSmartMeter(db)
 
+
+# Views rendering
 @app.route('/')
-def contacts():
+def index():
     return render_template('index.html', title='Social Smart Meter')
 
 
+@app.route('/specific')
+def specific():
+
+    if "category" not in request.args:
+        return render_template('index.html', title='Social Smart Meter')
+
+    category = request.args["category"]
+    return render_template('specific_energy.html',category=category)
+
+# AJAX response
 @app.route('/area')
 def get_area():
     name = configuration.AREA
@@ -35,13 +47,29 @@ def get_tweet_count():
 
     start = int(request.args["start"])
     end = int(request.args["end"])
+    category=None
+
+    if "category" in request.args:
+        category = request.args["category"]
 
     start_date = datetime.datetime.fromtimestamp(start//1000)
     end_date = datetime.datetime.fromtimestamp(end//1000)
 
-    data = ssm.get_tweet_count(start_date,end_date)
+    data = ssm.get_tweet_count(start_date,end_date, category)
     return jsonify(data)
 
+
+@app.route('/get_words_count')
+def get_words_count():
+    start = int(request.args["start"])
+    end = int(request.args["end"])
+    category = request.args["category"]
+
+    start_date = datetime.datetime.fromtimestamp(start // 1000)
+    end_date = datetime.datetime.fromtimestamp(end // 1000)
+    count = ssm.get_words_count(start_date,end_date,category)
+
+    return jsonify(count)
 
 # Offline method
 @app.route('/annotate')

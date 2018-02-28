@@ -39,8 +39,8 @@
 
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Total <span class="sr-only">(current)</span></a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Total </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="specific?category=mobility">Mobility</a>
@@ -62,7 +62,7 @@
 
         <div class="row">
             <div class="col-md-8">
-                <div id="map"></div>
+                <div id="map" data-category="{{category}}"></div>
             </div>
             <div class="col-md-4">
                 <div id="chart"></div>
@@ -80,7 +80,7 @@
 
         <div class="row text-center">
             <div class="col-md-10 offset-md-1">
-                <h1 id="area">Amsterdam - Overall Energy Consumption</h1>
+                <h1 id="area">Amsterdam - {{category|title}} Energy Consumption</h1>
             </div>
         </div>
 
@@ -91,14 +91,14 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" 
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
         crossorigin="anonymous"></script>
-    
-  
+
+
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
         crossorigin=""></script>
 
@@ -106,8 +106,9 @@
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script> 
-    
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="{{ url_for('static', filename='js/specific.js') }}"></script>
+
 </body>
 
 </html>
