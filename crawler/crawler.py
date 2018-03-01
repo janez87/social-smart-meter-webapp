@@ -9,6 +9,7 @@ from pymongo import MongoClient
 sys.path.append("../")
 from configuration import configuration as config
 from social_smart_meter import SocialSmartMeter
+from socketIO_client import SocketIO
 
 BOUNDING_BOX = [4.736851, 52.273948, 5.065755, 52.430806]  # Amsterdam
 
@@ -21,18 +22,22 @@ class StreamCrawler(tweepy.StreamListener):
         tweepy.StreamListener.__init__(self)
         self.collection = collection
         self.ssm = ssm
+        self.socket_io = SocketIO(config.SOCKETIO_HOST, config.SOCKETIO_PORT)
 
     def on_status(self, tweet):
         print(tweet.text)
-        tweet = self.ssm.annotate_tweet_location(tweet)
-        self.save_tweets(tweet)
+        json_tweet = tweet._json
+        json_tweet = self.ssm.annotate_tweet_location(json_tweet)
+        self.save_tweets(json_tweet)
+        json_tweet["_id"] = str(json_tweet["_id"])
+        self.socket_io.emit("tweet", json_tweet)
 
     def on_error(self, status_code):
         print(status_code)
         return True
 
     def save_tweets(self, tweet):
-        self.collection.insert(tweet._json)
+        self.collection.insert(tweet)
 
 
 def main():

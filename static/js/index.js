@@ -2,6 +2,37 @@ var myMap;
 var geoJson;
 var data;
 
+function handleTweetNotification(tweet){
+    console.log(tweet)
+    $("#tweets").append(tweet.text)
+}
+
+function createTweets(start,end,category){
+
+    $.get("/tweets?start="+start+"&end="+end,function(data){
+        $container = $("#tweets")
+        console.log($container)
+        data.forEach(function(t){
+             var id = t.id
+             var $tweet = $("<div></div>")
+             $tweet.addClass("tweet_container")
+             $tweet.attr("id",id)
+             $tweet.appendTo($container)
+             console.log(t.id)
+             twttr.widgets.createTweet(
+                id, $tweet[0],
+                  {
+                    dnt:true,
+                    width:550,
+                    conversation : 'none',    // or all
+                    cards        : 'hidden',  // or visible
+                    linkColor    : '#cc0000', // default is blue
+                    theme        : 'light'    // or dark
+                  })
+        })
+    })
+  }
+
 function createChart(features){
 
     var mobility = 0
@@ -22,9 +53,6 @@ function createChart(features){
         ["Leisure",leisure],
         ["Dwelling",dwelling]
     ]
-    console.log(chartData)
-
-
 
     Highcharts.chart('chart', {
         credits: {
@@ -90,7 +118,6 @@ function show_tweet_count(start,end){
 
 
     $.get("/get_geo_tweet_count?start="+start+"&end="+end,function(res){
-        console.log(res)
         data=res
          if(geoJson){
              geoJson.clearLayers()
@@ -127,6 +154,16 @@ function init(){
     }, show_tweet_count);
 
     show_tweet_count(start, end);
+    createTweets(start,end)
+    /*var socket = io.connect();
+    socket.on('connect', function() {
+        console.log("yeah")
+    });
+
+    socket.on('error',function(e){
+        console.log(e)
+    })
+    socket.on('tweet',handleTweetNotification)*/
 }
 
 

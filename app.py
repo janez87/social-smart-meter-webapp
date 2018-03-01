@@ -5,12 +5,17 @@ import datetime
 from flask import Flask, render_template,request, jsonify, redirect, url_for
 from pymongo import MongoClient
 from bson import ObjectId
+from flask_socketio import SocketIO, emit
 
 # my modules
 from configuration import configuration
 from social_smart_meter import SocialSmartMeter
 
+
 app = Flask(__name__)
+app.debug = True
+socketio = SocketIO(app, async_mode='eventlet')
+
 client = MongoClient(
     configuration.DB_HOST, configuration.DB_PORT)
 
@@ -22,6 +27,7 @@ ssm = SocialSmartMeter(db)
 # Views rendering
 @app.route('/')
 def index():
+
     return render_template('index.html', title='Social Smart Meter')
 
 
@@ -29,12 +35,43 @@ def index():
 def specific():
 
     if "category" not in request.args:
-        return render_template('index.html', title='Social Smart Meter')
+        return redirect(url_for("index"))
 
     category = request.args["category"]
+
     return render_template('specific_energy.html',category=category)
 
+# SocketIO notification
+@socketio.on('tweet')
+def send_tweet(data):
+    print("Tweet notification received")
+    emit("tweet",data,broadcast=True)
+
+@socketio.on('client_connected')
+def on_connect():
+    print("Someone connected")
+
+@socketio.on_error()
+def on_error(e):
+    print(e)
+
 # AJAX response
+
+@app.route('/tweets')
+def get_tweets():
+    start = int(request.args["start"])
+    end = int(request.args["end"])
+    category = None
+
+    if "category" in request.args:
+        category = request.args["category"]
+
+    start_date = datetime.datetime.fromtimestamp(start // 1000)
+    end_date = datetime.datetime.fromtimestamp(end // 1000)
+
+    data = ssm.get_tweets(start_date, end_date, category)
+    return jsonify(data)
+
 @app.route('/area')
 def get_area():
     name = configuration.AREA
@@ -121,4 +158,5 @@ def evaluate():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    socketio.run(app)

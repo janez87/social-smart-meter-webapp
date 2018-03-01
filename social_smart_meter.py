@@ -11,35 +11,29 @@ class SocialSmartMeter:
             "name": configuration.AREA
         })
 
+
     # Online method
     def annotate_tweet_location(self, tweet):
 
-        if tweet.geo is not None:
-            point = Point(tweet.geo["coordinates"][0],tweet.geo["coordinates"][1])
-            for a in self.city["geojson"]["features"]:
-                area = shape(a["geometry"])
-                if area.contains(point):
-                    setattr(tweet,"area_name",a["properties"]["name"])
-                    setattr(tweet,"area_id",a["id"])
-                    #tweet["area_name"] = a["properties"]["name"]
-                    #tweet["area_id"] = a["id"]
-                    print("by location coordinates")
-                    print(a["area_name"])
-                    break
-        elif tweet.place is not None:
-            for a in self.city["geojson"]["features"]:
-                if a["properties"]["name"] == tweet.place.name:
-                    setattr(tweet, "area_name", a["properties"]["name"])
-                    setattr(tweet, "area_id", a["id"])
-                    # tweet["area_name"] = a["properties"]["name"]
-                    # tweet["area_id"] = a["id"]
-                    print("by location name")
-                    print(a["area_name"])
-                    break
+        if tweet["geo"] is None and tweet["place"] is None:
+            return tweet
+
+        point = None
+        if tweet["geo"] is not None:
+            point = Point(tweet["geo"]["coordinates"][0],tweet["geo"]["coordinates"][1])
+
+        for a in self.city["geojson"]["features"]:
+            area = shape(a["geometry"])
+            if (point is not None and area.contains(point)) or a["properties"]["name"] == tweet["place"]["name"]:
+                tweet["area_name"] = a["properties"]["name"]
+                tweet["area_id"] = a["id"]
+                print(tweet["area_name"])
+                break
 
         return tweet
 
-
+    def classify_tweet(self, tweet):
+        pass
 
     def get_words_count(self,start_date,end_date,category):
 
@@ -153,6 +147,28 @@ class SocialSmartMeter:
             a["count"] = total
 
         return area["geojson"]
+
+    def get_tweets(self,start,end,category):
+
+        query={
+            "date": {
+                "$gte": start,
+                "$lt": end
+            }
+        }
+
+        project= {
+            "_id":0
+        }
+
+        if category is not None:
+            query["categories"] = category
+
+        tweets = self.db["tweet"].find(query,project).sort([("date",-1)]).limit(50)
+
+        return list(tweets)
+
+
 
     # Offline methods
     def annotate_tweets_location(self):
