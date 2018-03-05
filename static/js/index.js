@@ -2,9 +2,24 @@ var myMap;
 var geoJson;
 var data;
 
-function handleTweetNotification(tweet){
-    console.log(tweet)
-    $("#tweets").append(tweet.text)
+function handleTweetNotification(t){
+    $container = $("#tweets")
+    var $tweet = $("<div></div>")
+    $tweet.addClass("tweet_container")
+    $tweet.attr("id",t.id)
+    $tweet.prependTo($container)
+    console.log($tweet)
+    twttr.widgets.createTweet(
+    t.id.toString(), $tweet[0],
+      {
+        dnt:true,
+        width:550,
+        conversation : 'none',    // or all
+        cards        : 'hidden',  // or visible
+        linkColor    : '#cc0000', // default is blue
+        theme        : 'light'    // or dark
+      })
+
 }
 
 function createTweets(start,end,category){
@@ -100,7 +115,14 @@ function createChart(features){
 }
 function create_map(){
 
-    myMap = L.map('map').setView([52.3663589, 4.8680607], 11);
+    //myMap = L.map('map').setView([52.3663589, 4.8680607], 11);
+    var center = $("#map").data("centroid")
+
+    var temp = center[0]
+    center[0] = center[1]
+    center[1] = temp
+
+    myMap = L.map('map').setView(center, 11);
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A', {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -155,7 +177,8 @@ function init(){
 
     show_tweet_count(start, end);
     createTweets(start,end)
-    /*var socket = io.connect();
+
+    var socket = io.connect();
     socket.on('connect', function() {
         console.log("yeah")
     });
@@ -163,7 +186,7 @@ function init(){
     socket.on('error',function(e){
         console.log(e)
     })
-    socket.on('tweet',handleTweetNotification)*/
+    socket.on('tweet',handleTweetNotification)
 }
 
 

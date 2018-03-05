@@ -28,7 +28,11 @@ ssm = SocialSmartMeter(db)
 @app.route('/')
 def index():
 
-    return render_template('index.html', title='Social Smart Meter')
+    city = configuration.AREA
+
+    centroid = db["area"].find_one({"name":city})["centroid"]
+
+    return render_template('index.html', title='Social Smart Meter', city=city, centroid=centroid)
 
 
 @app.route('/specific')
@@ -37,9 +41,12 @@ def specific():
     if "category" not in request.args:
         return redirect(url_for("index"))
 
+    city = configuration.AREA
+    centroid = db["area"].find_one({"name":city})["centroid"]
+
     category = request.args["category"]
 
-    return render_template('specific_energy.html',category=category)
+    return render_template('specific_energy.html',category=category, city=city, centroid=centroid)
 
 # SocketIO notification
 @socketio.on('tweet')

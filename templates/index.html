@@ -62,7 +62,7 @@
 
         <div class="row">
             <div class="col-md-8">
-                <div id="map"></div>
+                <div data-centroid="{{centroid}}" id="map"></div>
             </div>
             <div class="col-md-4">
                 <div id="chart"></div>
@@ -80,7 +80,7 @@
 
         <div class="row text-center">
             <div class="col-md-10 offset-md-1">
-                <h1 id="area">Amsterdam - Overall Energy Consumption</h1>
+                <h1 id="area">{{city|title}} - Overall Energy Consumption</h1>
             </div>
         </div>
 
@@ -88,6 +88,7 @@
             <div class="col-md-12">
                 <div clas="row">
                     <div class="col-md-7">
+                        <h3>Real Time Tweets</h3>
                       <div id="tweets">
 
                       </div>

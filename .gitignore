@@ -98,5 +98,7 @@ ENV/
 .vscode/
 
 amsterdam.geojson.txt
+boston.geojson
+
 #configuration file
 configuration/configuration.py

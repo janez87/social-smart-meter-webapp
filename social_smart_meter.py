@@ -11,30 +11,6 @@ class SocialSmartMeter:
             "name": configuration.AREA
         })
 
-
-    # Online method
-    def annotate_tweet_location(self, tweet):
-
-        if tweet["geo"] is None and tweet["place"] is None:
-            return tweet
-
-        point = None
-        if tweet["geo"] is not None:
-            point = Point(tweet["geo"]["coordinates"][0],tweet["geo"]["coordinates"][1])
-
-        for a in self.city["geojson"]["features"]:
-            area = shape(a["geometry"])
-            if (point is not None and area.contains(point)) or a["properties"]["name"] == tweet["place"]["name"]:
-                tweet["area_name"] = a["properties"]["name"]
-                tweet["area_id"] = a["id"]
-                print(tweet["area_name"])
-                break
-
-        return tweet
-
-    def classify_tweet(self, tweet):
-        pass
-
     def get_words_count(self,start_date,end_date,category):
 
         print(start_date)
@@ -69,8 +45,7 @@ class SocialSmartMeter:
             "$group":{
                 "_id":{
                     "token":"$tokens",
-                    "area_name":"$area_name",
-                    "area_id":"$area_id"
+                    "area_name":"$area_name"
                 },
                 "count":{
                     "$sum":1
@@ -83,7 +58,6 @@ class SocialSmartMeter:
                 "count":1,
                 "token":"$_id.token",
                 "area_name":"$_id.area_name",
-                "area_id":"$_id.area_id",
                 "_id":0
             }
         }
@@ -107,7 +81,6 @@ class SocialSmartMeter:
             "$group": {
                 "_id": {
                     "area_name": "$_id.area_name",
-                    "area_id": "$_id.area_id",
                     "category":"$_id.categories"
                 },
                 "count": {
@@ -119,7 +92,6 @@ class SocialSmartMeter:
         project = {
             "$project": {
                 "area_name": "$_id.area_name",
-                "area_id": "$_id.area_id",
                 "category":"$_id.category",
                 "count": 1,
                 "_id": 0
@@ -137,7 +109,7 @@ class SocialSmartMeter:
         area = self.db["area"].find_one({"name": configuration.AREA},{"_id":0})
 
         for a in area["geojson"]["features"]:
-            considered_area = list(filter(lambda x: a["id"] == x["area_id"], counts))
+            considered_area = list(filter(lambda x: a["properties"]["name"] == x["area_name"], counts))
             total = 0
             for ca in considered_area:
                 total += ca["count"]
@@ -193,5 +165,5 @@ class SocialSmartMeter:
                 }
                 ]
             }
-            self.db["tweet"].update(query, {"$set": {"area_name": area["properties"]["name"], "area_id": area["id"]}}
+            self.db["tweet"].update(query, {"$set": {"area_name": area["properties"]["name"]}}
                                     , multi=True, upsert=False)
