@@ -32,8 +32,7 @@ class SocialSmartMeter:
         project = {
             "$project":{
                 "tokens":1,
-                "area_name":1,
-                "area_id":1
+                "area_name":1
             }
         }
 
@@ -108,6 +107,7 @@ class SocialSmartMeter:
 
         area = self.db["area"].find_one({"name": configuration.AREA},{"_id":0})
 
+        total_by_area = []
         for a in area["geojson"]["features"]:
             considered_area = list(filter(lambda x: a["properties"]["name"] == x["area_name"], counts))
             total = 0
@@ -117,6 +117,17 @@ class SocialSmartMeter:
                     a[ca["category"]] = ca["count"]
 
             a["count"] = total
+            total_by_area.append(total)
+
+        max_count = max(total_by_area)
+
+        print(total_by_area)
+        print(max_count)
+        # Normalizing
+
+        if max_count>0:
+            for a in area["geojson"]["features"]:
+                a["count"] = a["count"]/max_count
 
         return area["geojson"]
 

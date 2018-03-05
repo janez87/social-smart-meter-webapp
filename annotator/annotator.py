@@ -1,11 +1,14 @@
 # System modules
 import datetime
+import re
 
 # External modules
 from shapely.geometry import shape, Point
+from gensim import utils
+from stop_words import get_stop_words
 
 # My modules
-from classifier.classifier import Classifier
+#from classifier.classifier import Classifier
 from configuration import configuration
 
 class Annotator:
@@ -17,7 +20,25 @@ class Annotator:
             "name": configuration.AREA
         })
 
-        self.classifier = Classifier()
+        #self.classifier = Classifier()
+
+
+    def tokenize(self,tweet):
+        stop_words_list = get_stop_words("en")
+
+        tweet_text = tweet["text"]
+
+        if tweet["truncated"]:
+            tweet_text = tweet["extended_tweet"]["full_text"]
+
+        tweet_text = re.sub(r"(?:\@|https?\://)\S+", "", tweet_text)
+
+        tokens = [token for token in utils.simple_preprocess(
+            tweet_text, deacc=False, min_len=3) if token not in stop_words_list]
+
+        tweet["tokens"] = tokens
+
+        return tweet
 
     def add_date(self,tweet):
         tweet["date"] = datetime.datetime.fromtimestamp(int(tweet["timestamp_ms"]) // 1000)
@@ -42,5 +63,37 @@ class Annotator:
 
         return tweet
 
-    def classify_tweet(self, tweet):
-        return self.classifier.classify(tweet)
+    #def classify_tweet(self, tweet):
+    #    return self.classifier.classify(tweet)
+
+    def tokenize_offline(self):
+        tweets = list(self.db["tweet"].find())
+
+        print("Updating tweets")
+        for t in tweets:
+            stop_words_list = get_stop_words("en")
+
+            tweet_text = t["text"]
+
+            if t["truncated"]:
+                tweet_text = t["extended_tweet"]["full_text"]
+
+            tweet_text = re.sub(r"(?:\@|https?\://)\S+", "", tweet_text)
+
+            tokens = [token for token in utils.simple_preprocess(
+                tweet_text, deacc=False, min_len=3) if token not in stop_words_list]
+
+            query = {
+                "_id": t["_id"]
+            }
+
+            update = {
+                "$set": {
+                    "tokens": tokens
+                }
+            }
+            self.db["tweet"].update(query, update)
+
+        print("Done")
+
+

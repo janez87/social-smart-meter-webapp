@@ -8,7 +8,6 @@ function handleTweetNotification(t){
     $tweet.addClass("tweet_container")
     $tweet.attr("id",t.id)
     $tweet.prependTo($container)
-    console.log($tweet)
     twttr.widgets.createTweet(
     t.id.toString(), $tweet[0],
       {
@@ -26,14 +25,12 @@ function createTweets(start,end,category){
 
     $.get("/tweets?start="+start+"&end="+end,function(data){
         $container = $("#tweets")
-        console.log($container)
         data.forEach(function(t){
              var id = t.id
              var $tweet = $("<div></div>")
              $tweet.addClass("tweet_container")
              $tweet.attr("id",id)
              $tweet.appendTo($container)
-             console.log(t.id)
              twttr.widgets.createTweet(
                 id, $tweet[0],
                   {
@@ -197,14 +194,17 @@ init()
 
 
 function getColor(d) {
-    return d > 500 ? '#800026' :
-           d > 200  ? '#BD0026' :
-           d > 100  ? '#E31A1C' :
-           d > 50  ? '#FC4E2A' :
-           d > 20   ? '#FD8D3C' :
-           d > 10   ? '#FEB24C' :
-           d > 5   ? '#FED976' :
-                      '#FFEDA0';
+    var colors = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b']
+    return d >= 1 ? colors[8] :
+           d > 0.9  ? colors[7] :
+           d > 0.8  ? colors[6] :
+           d > 0.7  ? colors[5] :
+           d > 0.6   ? colors[4] :
+           d > 0.5   ? colors[3] :
+           d > 0.4  ? colors[2] :
+           d > 0.3  ? colors[1] :
+                      colors[0];
+
 }
 
 function style(feature) {

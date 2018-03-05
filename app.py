@@ -10,7 +10,7 @@ from flask_socketio import SocketIO, emit
 # my modules
 from configuration import configuration
 from social_smart_meter import SocialSmartMeter
-
+from annotator.annotator import Annotator
 
 app = Flask(__name__)
 app.debug = True
@@ -22,7 +22,6 @@ client = MongoClient(
 db = client[configuration.DB_NAME]
 
 ssm = SocialSmartMeter(db)
-
 
 # Views rendering
 @app.route('/')
@@ -63,7 +62,6 @@ def on_error(e):
     print(e)
 
 # AJAX response
-
 @app.route('/tweets')
 def get_tweets():
     start = int(request.args["start"])
@@ -91,7 +89,7 @@ def get_tweet_count():
 
     start = int(request.args["start"])
     end = int(request.args["end"])
-    category=None
+    category = None
 
     if "category" in request.args:
         category = request.args["category"]

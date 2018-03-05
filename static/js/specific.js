@@ -137,7 +137,7 @@ function init(){
 
     create_map()
 
-    category = $("#map").data("category")
+    var category = $("#map").data("category")
     var start = moment().subtract(29, 'days');
     var end =  moment()
 
@@ -164,21 +164,33 @@ init()
 // Style functions
 
 
-function getColor(d) {
-    return d > 500 ? '#800026' :
-           d > 200  ? '#BD0026' :
-           d > 100  ? '#E31A1C' :
-           d > 50  ? '#FC4E2A' :
-           d > 20   ? '#FD8D3C' :
-           d > 10   ? '#FEB24C' :
-           d > 5   ? '#FED976' :
-                      '#FFEDA0';
+function getColor(d,category) {
+
+    var colorsMap = {
+        "mobility": ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'],
+        "dwelling": ['#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476','#41ab5d','#238b45','#006d2c','#00441b'],
+        "food": ['#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506'],
+        "leisure": ['#fff7f3','#fde0dd','#fcc5c0','#fa9fb5','#f768a1','#dd3497','#ae017e','#7a0177','#49006a']
+    }
+
+    var colors = colorsMap[category]
+
+    return d >= 1 ? colors[8] :
+           d > 0.9  ? colors[7] :
+           d > 0.8  ? colors[6] :
+           d > 0.7  ? colors[5] :
+           d > 0.6   ? colors[4] :
+           d > 0.5   ? colors[3] :
+           d > 0.4  ? colors[2] :
+           d > 0.3  ? colors[1] :
+                      colors[0];
 }
 
 function style(feature) {
     var count = feature.count || 0
+    var category = $("#map").data("category")
     return {
-        fillColor: getColor(count),
+        fillColor: getColor(count, category),
         weight: 2,
         opacity: 1,
         color: 'white',

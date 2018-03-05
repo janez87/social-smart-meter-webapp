@@ -32,16 +32,18 @@ class StreamCrawler(tweepy.StreamListener):
         json_tweet = self.annotator.add_date(json_tweet)
         json_tweet = self.annotator.annotate_tweet_location(json_tweet)
         json_tweet = self.annotator.classify_tweet(json_tweet)
+        json_tweet = self.annotator.tokenize(json_tweet)
 
         self.save_tweets(json_tweet)
 
+        # Object ID and datetime are not json serializable
         json_tweet["_id"] = str(json_tweet["_id"])
         json_tweet["date"] = json_tweet["date"].isoformat()
 
         self.socket_io.emit("tweet", json_tweet)
 
     def on_error(self, status_code):
-        print(status_code)
+        print("An error occurred while listening to the stream ->", status_code)
         return True
 
     def save_tweets(self, tweet):
