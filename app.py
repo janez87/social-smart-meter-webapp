@@ -50,7 +50,6 @@ def specific():
 # SocketIO notification
 @socketio.on('tweet')
 def send_tweet(data):
-    print("Tweet notification received")
     emit("tweet",data,broadcast=True)
 
 @socketio.on('client_connected')

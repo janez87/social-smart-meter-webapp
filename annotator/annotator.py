@@ -8,8 +8,9 @@ from gensim import utils
 from stop_words import get_stop_words
 
 # My modules
-#from classifier.classifier import Classifier
+from classifier.classifier import Classifier
 from configuration import configuration
+
 
 class Annotator:
 
@@ -20,7 +21,7 @@ class Annotator:
             "name": configuration.AREA
         })
 
-        #self.classifier = Classifier()
+        self.classifier = Classifier()
 
 
     def tokenize(self,tweet):
@@ -63,8 +64,8 @@ class Annotator:
 
         return tweet
 
-    #def classify_tweet(self, tweet):
-    #    return self.classifier.classify(tweet)
+    def classify_tweet(self, tweet):
+        return self.classifier.classify(tweet)
 
     def tokenize_offline(self):
         tweets = list(self.db["tweet"].find())

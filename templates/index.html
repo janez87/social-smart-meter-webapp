@@ -11,13 +11,15 @@
     <title>Social Smart Meter</title>
 
     <!-- Bootstrap core CSS -->
+    <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
+    <link href="{{url_for('static',filename='css/open-iconic-bootstrap.min.css')}}" rel="stylesheet">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
         crossorigin="anonymous">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
         crossorigin="" />
 
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 
 
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
@@ -60,6 +62,12 @@
 
     <div role="main" class="container">
 
+        <div class="row text-center">
+            <div class="col-md-10 offset-md-1">
+                <h1 id="area">{{city|title}} - Overall Energy Consumption</h1>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-8">
                 <div data-centroid="{{centroid}}" id="map"></div>
@@ -73,29 +81,22 @@
             <div class="offset-md-2 col-md-8">
                 <div id="reportrange" class="text-center" >
                     <span></span> <b class="caret"></b>
-                     &nbsp;<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                     &nbsp;<i class="oi oi-calendar fa fa-calendar"></i>
                 </div>
             </div>
         </div>
 
-        <div class="row text-center">
-            <div class="col-md-10 offset-md-1">
-                <h1 id="area">{{city|title}} - Overall Energy Consumption</h1>
-            </div>
-        </div>
 
         <div class="row">
             <div class="col-md-12">
                 <div clas="row">
                     <div class="col-md-7">
                         <h3>Real Time Tweets</h3>
-                      <div id="tweets">
+                          <div id="tweets">
 
-                      </div>
+                          </div>
                     </div>
-                    <div class="col-md-5">
 
-                    </div>
                 </div>
             </div>
         </div>

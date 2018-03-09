@@ -7,6 +7,7 @@ db.createView("tweet_count","tweet",[
         }
 
     },
+    {$unwind:"$categories"},
     {
 	$group:{
 		_id:{
@@ -15,7 +16,7 @@ db.createView("tweet_count","tweet",[
 		  day:{$dayOfMonth:"$date"},
 		  month:{$month:"$date"},
 		  area_name:"$area_name",
-		  area_id:"$area_id"
+		  categories:"$categories"
 		},
 		count:{
 			$sum:1
@@ -23,14 +24,15 @@ db.createView("tweet_count","tweet",[
 	}},{
 		$project:{
 			count:1,
+			categories:1,
 			date: {$dateFromParts:{
 				year:"$_id.year",
 				month:"$_id.month",
 				day:"$_id.day",
+				hour:"$_id.hour",
 				minute:59,
 				second:59,
 				millisecond:999,
-				timezone:"+01"
 			}}
 		}
 	}])

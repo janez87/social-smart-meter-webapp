@@ -1,3 +1,4 @@
+import math
 from configuration import configuration
 from shapely.geometry import shape, Point
 
@@ -20,7 +21,7 @@ class SocialSmartMeter:
             "$match":{
                 "date":{
                     "$gte":start_date,
-                    "$lt":end_date
+                    "$lte":end_date
                 },
                 "categories":category.upper(),
                 "area_name":{
@@ -70,7 +71,7 @@ class SocialSmartMeter:
             "$match": {
                 "date": {
                     "$gte": start_date,
-                    "$lt": end_date
+                    "$lte": end_date
                 }
             }
         }
@@ -119,7 +120,7 @@ class SocialSmartMeter:
             a["count"] = total
             total_by_area.append(total)
 
-        max_count = max(total_by_area)
+        max_count = math.log(max(total_by_area)+1)
 
         print(total_by_area)
         print(max_count)
@@ -127,7 +128,7 @@ class SocialSmartMeter:
 
         if max_count>0:
             for a in area["geojson"]["features"]:
-                a["count"] = a["count"]/max_count
+                a["count"] = math.log(a["count"]+1)/max_count
 
         return area["geojson"]
 

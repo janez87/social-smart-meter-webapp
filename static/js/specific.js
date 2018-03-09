@@ -49,6 +49,14 @@ function createChart(data,area){
     }
 
 
+    var chartColor = {
+        "mobility": '#6baed6',
+        "dwelling": '#74c476',
+        "food": '#fe9929',
+        "leisure": '#f768a1'
+    }
+
+    var category  = $("#map").data("category")
 
     Highcharts.chart('chart', {
         chart: {
@@ -87,7 +95,8 @@ function createChart(data,area){
         },
         series: [{
             name: 'Frequency',
-            data: y
+            data: y,
+            color:chartColor[category]
         }]
     });
 }
@@ -147,7 +156,7 @@ function init(){
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(11, 'days'),  moment().subtract(5, 'days')],
+            'Last 7 Days': [moment().subtract(7, 'days'),  moment()],
             'Last 30 Days': [moment().subtract(29, 'days'), moment()],
             'This Month': [moment().startOf('month'), moment().endOf('month')],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
@@ -162,8 +171,6 @@ init()
 
 // Map functions
 // Style functions
-
-
 function getColor(d,category) {
 
     var colorsMap = {

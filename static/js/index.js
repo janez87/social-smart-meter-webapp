@@ -1,8 +1,19 @@
 var myMap;
 var geoJson;
 var data;
+var tweetsId = []
 
 function handleTweetNotification(t){
+
+    var MAX = 20
+
+    if(tweetsId.length === MAX){
+        var deleteId = tweetsId.shift()
+        var $delete  = $("#"+deleteId)
+        $delete.remove()
+    }
+
+
     $container = $("#tweets")
     var $tweet = $("<div></div>")
     $tweet.addClass("tweet_container")
@@ -14,10 +25,14 @@ function handleTweetNotification(t){
         dnt:true,
         width:550,
         conversation : 'none',    // or all
-        cards        : 'hidden',  // or visible
+        cards        : 'visible',  // or visible
         linkColor    : '#cc0000', // default is blue
         theme        : 'light'    // or dark
       })
+
+     tweetsId.push(t.id)
+    twttr.widgets.load()
+
 
 }
 
@@ -104,7 +119,8 @@ function createChart(features){
             type: 'pie',
             name: 'Percentage',
             innerSize: '50%',
-            data: chartData
+            data: chartData,
+            colors:["#fe9929","#6baed6","#f768a1","#74c476"]
         }]
     });
 
@@ -165,7 +181,7 @@ function init(){
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(11, 'days'),  moment().subtract(5, 'days')],
+            'Last 7 Days': [moment().subtract(7, 'days'),  moment()],
             'Last 30 Days': [moment().subtract(29, 'days'), moment()],
             'This Month': [moment().startOf('month'), moment().endOf('month')],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
@@ -173,7 +189,7 @@ function init(){
     }, show_tweet_count);
 
     show_tweet_count(start, end);
-    createTweets(start,end)
+    //createTweets(start,end)
 
     var socket = io.connect();
     socket.on('connect', function() {
@@ -189,12 +205,13 @@ function init(){
 
 init()
 
+
 // Map functions
 // Style functions
-
-
 function getColor(d) {
-    var colors = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b']
+
+    var colors = ['#ffffff','#f0f0f0','#d9d9d9','#bdbdbd','#969696','#737373','#525252','#252525','#000000']
+
     return d >= 1 ? colors[8] :
            d > 0.9  ? colors[7] :
            d > 0.8  ? colors[6] :
