@@ -1,6 +1,7 @@
 # System modules
 import datetime
 import re
+import sys
 
 # External modules
 from shapely.geometry import shape, Point
@@ -8,6 +9,8 @@ from gensim import utils
 from stop_words import get_stop_words
 
 # My modules
+sys.path.append('..')
+
 from classifier.classifier import Classifier
 from configuration import configuration
 
@@ -21,7 +24,7 @@ class Annotator:
             "name": configuration.AREA
         })
 
-        self.classifier = Classifier()
+        self.classifier = Classifier(self.db)
 
 
     def tokenize(self,tweet):
@@ -67,6 +70,52 @@ class Annotator:
     def classify_tweet(self, tweet):
         return self.classifier.classify(tweet)
 
+    def add_date_offline(self):
+        tweets = list(self.db["tweet"].find())
+
+        print("Adding date to tweets")
+        for t in tweets:
+            print(t["id"])
+            date = datetime.datetime.fromtimestamp(int(t["timestamp_ms"]) // 1000)
+            self.db["tweet"].update({"id": t["id"]}, {"$set": {"date": date}})
+
+        print("Done")
+
+    def add_location_offline(self):
+        tweets = list(self.db["tweet"].find())
+
+        print("Adding area to tweets")
+        for t in tweets:
+            point = None
+            if t["geo"] is None and t["place"] is None:
+                continue
+
+            if t["geo"] is not None:
+                point = Point(t["geo"]["coordinates"][1], t["geo"]["coordinates"][0])
+
+            for a in self.city["geojson"]["features"]:
+                area = shape(a["geometry"])
+                if (point is not None and area.contains(point)) or a["properties"]["name"] == t["place"]["name"]:
+                    area_name = a["properties"]["name"]
+                    # tweet["area_id"] = a["id"]
+                    print("Found a tweet in", area_name)
+                    self.db["tweet"].update({"id": t["id"]}, {"$set": {"area_name": area_name}})
+
+                    break
+
+        print("Done")
+
+    def classify_offline(self):
+        tweets = list(self.db["tweet"].find())
+
+        print("Classifying tweets")
+        for t in tweets:
+            print(t["id"])
+            c_tweet = self.classifier.classify(t)
+            self.db["tweet"].update({"id": t["id"]}, {"$set": {"categories": c_tweet["categories"]}})
+
+        print("Done")
+
     def tokenize_offline(self):
         tweets = list(self.db["tweet"].find())
 
@@ -98,3 +147,17 @@ class Annotator:
         print("Done")
 
 
+if __name__ == "__main__":
+    from pymongo import MongoClient
+
+    client = MongoClient(
+        configuration.DB_HOST, configuration.DB_PORT)
+
+    db = client[configuration.DB_NAME]
+
+    annotator = Annotator(db)
+
+    #annotator.add_date_offline()
+    #annotator.add_location_offline()
+    #annotator.tokenize_offline()
+    annotator.classify_offline()

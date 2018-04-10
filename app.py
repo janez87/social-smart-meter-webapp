@@ -163,4 +163,4 @@ def evaluate():
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    socketio.run(app)
+    socketio.run(app,port=configuration.SOCKETIO_PORT)

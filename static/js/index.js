@@ -172,8 +172,8 @@ function init(){
     create_map()
 
     category = $("#map").data("category")
-    var start = moment().subtract(29, 'days');
-    var end =  moment()
+    var start = moment().subtract(3, 'month');
+    var end =  moment().subtract(2, 'month')
 
     $('#reportrange').daterangepicker({
         startDate: start,
@@ -191,15 +191,6 @@ function init(){
     show_tweet_count(start, end);
     //createTweets(start,end)
 
-    var socket = io.connect();
-    socket.on('connect', function() {
-        console.log("yeah")
-    });
-
-    socket.on('error',function(e){
-        console.log(e)
-    })
-    socket.on('tweet',handleTweetNotification)
 }
 
 
