@@ -20,3 +20,8 @@ body {
     margin-top: 10px;
 
 }
+
+.twitter-tweet .twitter-tweet-rendered{
+    height:200px !important;
+}
+

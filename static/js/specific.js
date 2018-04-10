@@ -230,7 +230,8 @@ function resetHighlight(e) {
 function zoomToFeature(e) {
     myMap.fitBounds(e.target.getBounds());
     var name = e.target.feature.properties.name
-    $("#area").text(name+" - "+$("#map").data("category")+" Energy Consumption")
+    var category = $("#map").data("category").replace(/\b\w/g, l => l.toUpperCase())
+    $("#area").text(name+" - "+ category+" Energy Consumption")
 
     var selected = data.features.find(function(a){
         return a.properties.name === name

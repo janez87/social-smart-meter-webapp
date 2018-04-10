@@ -1,6 +1,7 @@
 # System modules
 import datetime
 import re
+import sys
 
 # External modules
 from shapely.geometry import shape, Point
@@ -8,6 +9,8 @@ from gensim import utils
 from stop_words import get_stop_words
 
 # My modules
+sys.path.append('..')
+
 from classifier.classifier import Classifier
 from configuration import configuration
 
@@ -21,7 +24,7 @@ class Annotator:
             "name": configuration.AREA
         })
 
-        self.classifier = Classifier()
+        self.classifier = Classifier(self.db)
 
 
     def tokenize(self,tweet):
@@ -67,6 +70,18 @@ class Annotator:
     def classify_tweet(self, tweet):
         return self.classifier.classify(tweet)
 
+
+    def classify_offline(self):
+        tweets = list(self.db["tweet"].find())
+
+        print("Classifying tweets")
+        for t in tweets:
+            print(t["id"])
+            c_tweet = self.classifier.classify(t)
+            self.db["tweet"].update({"id": t["id"]}, {"$set": {"categories": c_tweet["categories"]}})
+
+        print("Done")
+
     def tokenize_offline(self):
         tweets = list(self.db["tweet"].find())
 
@@ -98,3 +113,14 @@ class Annotator:
         print("Done")
 
 
+if __name__ == "__main__":
+    from pymongo import MongoClient
+
+    client = MongoClient(
+        configuration.DB_HOST, configuration.DB_PORT)
+
+    db = client[configuration.DB_NAME]
+
+    annotator = Annotator(db)
+
+    annotator.classify_offline()

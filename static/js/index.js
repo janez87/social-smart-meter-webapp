@@ -19,11 +19,13 @@ function handleTweetNotification(t){
     $tweet.addClass("tweet_container")
     $tweet.attr("id",t.id)
     $tweet.prependTo($container)
+
     twttr.widgets.createTweet(
     t.id.toString(), $tweet[0],
       {
         dnt:true,
         width:550,
+        height:200,
         conversation : 'none',    // or all
         cards        : 'visible',  // or visible
         linkColor    : '#cc0000', // default is blue

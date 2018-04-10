@@ -12,6 +12,8 @@ class SocialSmartMeter:
             "name": configuration.AREA
         })
 
+        self.blacklist = ["boston","amp","careerarc","latest","hiring","click","xxx","xxxx"]
+
     def get_words_count(self,start_date,end_date,category):
 
         print(start_date)
@@ -25,6 +27,9 @@ class SocialSmartMeter:
                 },
                 "categories":category.upper(),
                 "area_name":{
+                    "$exists":True
+                },
+                "tokens.3":{
                     "$exists":True
                 }
             }
@@ -41,6 +46,9 @@ class SocialSmartMeter:
             "$unwind":"$tokens"
         }
 
+        blacklist = {
+            "$match":{"tokens":{"$nin":self.blacklist}}
+        }
         group = {
             "$group":{
                 "_id":{
@@ -61,7 +69,7 @@ class SocialSmartMeter:
                 "_id":0
             }
         }
-        counts = list(self.db["tweet"].aggregate([match,project,unwind, group,final_projection]))
+        counts = list(self.db["tweet"].aggregate([match,project,unwind, blacklist,group,final_projection]))
 
         return counts
 

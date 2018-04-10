@@ -119,11 +119,11 @@ def annotate_tweets():
     return jsonify({"status":"ok"})
 
 
-# Custom methods for the evaluating the cassifier
+# Custom methods for the evaluating the annotator
 @app.route('/tweet_evaluation')
 def get_tweet_to_evaluate():
     db = client["twitter"]
-    collection = db["tweet"]
+    collection = db["tweet_leisure"]
     query = {
         "crowd_evaluation":{
             "$exists":False
@@ -144,7 +144,7 @@ def evaluate():
     tweet_id = request.form["id"]
 
     db = client["twitter"]
-    collection = db["tweet"]
+    collection = db["tweet_leisure"]
     
     query = {
         "_id": ObjectId(tweet_id)
