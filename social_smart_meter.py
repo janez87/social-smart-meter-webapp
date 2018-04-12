@@ -1,7 +1,9 @@
 import math
+import functools
 from configuration import configuration
 from shapely.geometry import shape, Point
-
+from stop_words import get_stop_words
+import geopy.distance
 
 class SocialSmartMeter:
 
@@ -11,6 +13,12 @@ class SocialSmartMeter:
         self.city = self.db["area"].find_one({
             "name": configuration.AREA
         })
+
+        stop_words_list = get_stop_words("nl") + get_stop_words("en")
+
+        self.blacklist = ["volstrekt","adequate","handhaving","elke","stationary","olvgw","zorg","jan","olvgo","recap","waar","nederland","bla","und","lyf","day","amsterdam","amp","careerarc","latest","hiring","click","xxx","xxxx","rit","holland","netherlands","city","last","inzet","ambu"] + stop_words_list
+
+        self.bigrams_blacklist = ["inzet ambu","tooropstraat olvgw","amsterdam jan","jan tooropstraat","amsterdam oosterpark","amsterdam boelelaan" ,"rit amsterdam", "rit zorg", "rit ambu", "zorg rit", "ambu rit","oosterpark olvgo"]
 
     def get_words_count(self,start_date,end_date,category):
 
@@ -26,6 +34,9 @@ class SocialSmartMeter:
                 "categories":category.upper(),
                 "area_name":{
                     "$exists":True
+                },
+                "tokens.3":{
+                    "$exists":True
                 }
             }
         }
@@ -39,6 +50,10 @@ class SocialSmartMeter:
 
         unwind = {
             "$unwind":"$tokens"
+        }
+
+        blacklist = {
+            "$match": {"tokens": {"$nin": self.blacklist + self.bigrams_blacklist}}
         }
 
         group = {
@@ -61,7 +76,7 @@ class SocialSmartMeter:
                 "_id":0
             }
         }
-        counts = list(self.db["tweet"].aggregate([match,project,unwind, group,final_projection]))
+        counts = list(self.db["tweet"].aggregate([match,project,unwind,blacklist, group,final_projection]))
 
         return counts
 
@@ -152,7 +167,65 @@ class SocialSmartMeter:
 
         return list(tweets)
 
+    def get_user_displacement(self, start, end):
 
+        match = {
+            "$match":{
+                "date": {
+                    "$gte": start,
+                    "$lte": end
+                },
+                "categories":{
+                    "$exists":True
+                },
+                "area_name":{
+                    "$exists":True
+                }
+            }
+        }
+
+        project = {
+            "$project":{
+                "coordinates":1,
+                "user.id":1
+            }
+        }
+
+        group = {
+            "$group":{
+                "_id":"$user.id",
+                "trace":{
+                    "$push":"$coordinates.coordinates"
+                }
+            }
+        }
+
+        filter = {
+            "$match":{
+                "trace.1":{
+                    "$exists":True
+                }
+            }
+        }
+
+        data = list(self.db["tweet"].aggregate([match,project,group,filter]))
+
+        histogram = {}
+        for u in data:
+            points = u["trace"]
+            distance  = 0
+            for i in range(1,len(points)):
+                d = geopy.distance.vincenty(points[i],points[i-1])
+                distance += d.km
+
+            distance = math.ceil( distance / len(points))
+
+            if distance in histogram:
+                histogram[distance] += 1
+            else:
+                histogram[distance] = 1
+
+        return histogram
 
     # Offline methods
     def annotate_tweets_location(self):

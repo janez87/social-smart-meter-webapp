@@ -26,9 +26,8 @@ class Annotator:
 
         self.classifier = Classifier(self.db)
 
-
     def tokenize(self,tweet):
-        stop_words_list = get_stop_words("en")
+        stop_words_list = get_stop_words("en") + get_stop_words("nl")
 
         tweet_text = tweet["text"]
 
@@ -41,6 +40,8 @@ class Annotator:
             tweet_text, deacc=False, min_len=3) if token not in stop_words_list]
 
         tweet["tokens"] = tokens
+
+        #list(map(lambda x: " ".join(x),list(zip(*[tokens[i:] for i in range(2)]))))
 
         return tweet
 
@@ -133,6 +134,8 @@ class Annotator:
             tokens = [token for token in utils.simple_preprocess(
                 tweet_text, deacc=False, min_len=3) if token not in stop_words_list]
 
+            #tokens = tokens + list(map(lambda x: " ".join(x), list(zip(*[tokens[i:] for i in range(2)]))))
+
             query = {
                 "_id": t["_id"]
             }
@@ -159,5 +162,5 @@ if __name__ == "__main__":
 
     #annotator.add_date_offline()
     #annotator.add_location_offline()
-    #annotator.tokenize_offline()
-    annotator.classify_offline()
+    annotator.tokenize_offline()
+    #annotator.classify_offline()

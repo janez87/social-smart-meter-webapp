@@ -82,6 +82,17 @@ def get_area():
     area = db["area"].find_one({"name":name})
     return jsonify(area["geojson"])
 
+@app.route('/displacement')
+def get_user_displacement():
+    start = int(request.args["start"])
+    end = int(request.args["end"])
+
+    start_date = datetime.datetime.fromtimestamp(start // 1000)
+    end_date = datetime.datetime.fromtimestamp(end // 1000)
+
+    data = ssm.get_user_displacement(start_date, end_date)
+    return jsonify(data)
+
 
 @app.route('/get_geo_tweet_count')
 def get_tweet_count():

@@ -2,7 +2,81 @@ var myMap;
 var geoJson;
 var data;
 var wordCountData;
+var displacementData;
 
+ var chartColor = {
+        "mobility": '#6baed6',
+        "dwelling": '#74c476',
+        "food": '#fe9929',
+        "leisure": '#f768a1'
+    }
+
+function getUsersDisplacement(start,end){
+      $.get("/displacement?start="+start+"&end="+end,function(data){
+
+        displacementData = data
+        console.log(data)
+        createDisplacementChart(data)
+    })
+}
+
+function createDisplacementChart(data){
+
+    var category  = $("#map").data("category")
+
+    if(category!="mobility"){
+        return
+    }
+
+    var x = []
+    var y = []
+    for(k in data){
+        x.push(k)
+        y.push(data[k])
+    }
+
+    Highcharts.chart('displacement', {
+        chart: {
+            type: 'bar',
+            backgroundColor: "#eaeaea",
+
+        },
+        title: {
+            text: 'Users Displacement'
+        },
+        xAxis: {
+            categories: x,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Frequency',
+                align: 'high'
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Displacement',
+            data: y,
+            color:chartColor[category]
+        }]
+    });
+}
 function getWordCount(category,start,end){
 
     $.get("/get_words_count?start="+start+"&end="+end+"&category="+category,function(data){
@@ -49,12 +123,7 @@ function createChart(data,area){
     }
 
 
-    var chartColor = {
-        "mobility": '#6baed6',
-        "dwelling": '#74c476',
-        "food": '#fe9929',
-        "leisure": '#f768a1'
-    }
+
 
     var category  = $("#map").data("category")
 
@@ -140,6 +209,7 @@ function show_tweet_count(category, start,end){
     })
 
      getWordCount(category,start,end);
+     getUsersDisplacement(start,end);
 
 }
 function init(){
@@ -164,6 +234,7 @@ function init(){
     }, show_tweet_count.bind(null,category));
 
     show_tweet_count(category,start, end);
+
 }
 
 
@@ -230,7 +301,9 @@ function resetHighlight(e) {
 function zoomToFeature(e) {
     myMap.fitBounds(e.target.getBounds());
     var name = e.target.feature.properties.name
-    $("#area").text(name+" - "+$("#map").data("category")+" Energy Consumption")
+    var category = $("#map").data("category").replace(/\b\w/g, l => l.toUpperCase())
+
+    $("#area").text(name+" - "+category+" Energy Consumption")
 
     var selected = data.features.find(function(a){
         return a.properties.name === name

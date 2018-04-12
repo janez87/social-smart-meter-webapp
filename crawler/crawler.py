@@ -11,8 +11,8 @@ sys.path.append("../")
 from configuration import configuration as config
 from annotator.annotator import Annotator
 
-#BOUNDING_BOX = [4.736851, 52.273948, 5.065755, 52.430806]  # Amsterdam
-BOUNDING_BOX = [ -71.191421, 42.227797, -70.986004, 42.399542]  # Boston
+BOUNDING_BOX = [4.736851, 52.273948, 5.065755, 52.430806]  # Amsterdam
+#BOUNDING_BOX = [ -71.191421, 42.227797, -70.986004, 42.399542]  # Boston
 
 
 # BOUNDING_BOX = [28.4480, 40.8027, 29.4579, 41.2360] # Istanbul
@@ -23,7 +23,7 @@ class StreamCrawler(tweepy.StreamListener):
         tweepy.StreamListener.__init__(self)
         self.collection = collection
         self.annotator = annotator
-        self.socket_io = SocketIO(config.SOCKETIO_HOST, config.SOCKETIO_PORT)
+        #self.socket_io = SocketIO(config.SOCKETIO_HOST, config.SOCKETIO_PORT)
 
     def on_status(self, tweet):
         print(tweet.text)
@@ -31,8 +31,8 @@ class StreamCrawler(tweepy.StreamListener):
         json_tweet = tweet._json
         json_tweet = self.annotator.add_date(json_tweet)
         json_tweet = self.annotator.annotate_tweet_location(json_tweet)
-        json_tweet = self.annotator.classify_tweet(json_tweet)
         json_tweet = self.annotator.tokenize(json_tweet)
+        json_tweet = self.annotator.classify_tweet(json_tweet)
 
         self.save_tweets(json_tweet)
 
@@ -40,7 +40,7 @@ class StreamCrawler(tweepy.StreamListener):
         json_tweet["_id"] = str(json_tweet["_id"])
         json_tweet["date"] = json_tweet["date"].isoformat()
 
-        self.socket_io.emit("tweet", json_tweet)
+        #self.socket_io.emit("tweet", json_tweet)
 
     def on_error(self, status_code):
         print("An error occurred while listening to the stream ->", status_code)
