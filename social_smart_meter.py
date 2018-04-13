@@ -16,7 +16,7 @@ class SocialSmartMeter:
 
         stop_words_list = get_stop_words("nl") + get_stop_words("en")
 
-        self.blacklist = ["volstrekt","adequate","handhaving","elke","stationary","olvgw","zorg","jan","olvgo","recap","waar","nederland","bla","und","lyf","day","amsterdam","amp","careerarc","latest","hiring","click","xxx","xxxx","rit","holland","netherlands","city","last","inzet","ambu"] + stop_words_list
+        self.blacklist = ["stigmabase","can","volstrekt","adequate","handhaving","elke","stationary","olvgw","zorg","jan","olvgo","recap","waar","nederland","bla","und","lyf","day","amsterdam","amp","careerarc","latest","hiring","click","xxx","xxxx","rit","holland","netherlands","city","last","inzet","ambu"] + stop_words_list
 
         self.bigrams_blacklist = ["inzet ambu","tooropstraat olvgw","amsterdam jan","jan tooropstraat","amsterdam oosterpark","amsterdam boelelaan" ,"rit amsterdam", "rit zorg", "rit ambu", "zorg rit", "ambu rit","oosterpark olvgo"]
 

@@ -162,5 +162,5 @@ if __name__ == "__main__":
 
     #annotator.add_date_offline()
     #annotator.add_location_offline()
-    annotator.tokenize_offline()
-    #annotator.classify_offline()
+    #annotator.tokenize_offline()
+    annotator.classify_offline()

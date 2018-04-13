@@ -62,7 +62,8 @@ class Classifier:
             categories.append("MOBILITY")
 
         dwelling_common = set(tweet["tokens"]) & set(self.dwelling_terms)
-        if self.dwelling_classifier.predict(tweet_vector.reshape(1,-1)) and len(dwelling_common)>0:
+
+        if len(dwelling_common)>0:
             print(self.dwelling_terms)
             print(dwelling_common)
             categories.append("DWELLING")
