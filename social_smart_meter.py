@@ -1,6 +1,7 @@
 import math
 from configuration import configuration
 from shapely.geometry import shape, Point
+import geopy.distance
 
 
 class SocialSmartMeter:
@@ -161,6 +162,65 @@ class SocialSmartMeter:
         return list(tweets)
 
 
+    def get_user_displacement(self, start, end):
+
+        match = {
+            "$match":{
+                "date": {
+                    "$gte": start,
+                    "$lte": end
+                },
+                "categories":{
+                    "$exists":True
+                },
+                "area_name":{
+                    "$exists":True
+                }
+            }
+        }
+
+        project = {
+            "$project":{
+                "coordinates":1,
+                "user.id":1
+            }
+        }
+
+        group = {
+            "$group":{
+                "_id":"$user.id",
+                "trace":{
+                    "$push":"$coordinates.coordinates"
+                }
+            }
+        }
+
+        filter = {
+            "$match":{
+                "trace.1":{
+                    "$exists":True
+                }
+            }
+        }
+
+        data = list(self.db["tweet"].aggregate([match,project,group,filter]))
+
+        histogram = {}
+        for u in data:
+            points = u["trace"]
+            distance  = 0
+            for i in range(1,len(points)):
+                d = geopy.distance.vincenty(points[i],points[i-1])
+                distance += d.km
+
+            distance = math.ceil( distance / len(points))
+
+            if distance in histogram:
+                histogram[distance] += 1
+            else:
+                histogram[distance] = 1
+
+        return histogram
 
     # Offline methods
     def annotate_tweets_location(self):

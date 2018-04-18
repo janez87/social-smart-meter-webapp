@@ -112,6 +112,17 @@ def get_words_count():
 
     return jsonify(count)
 
+@app.route('/displacement')
+def get_user_displacement():
+    start = int(request.args["start"])
+    end = int(request.args["end"])
+
+    start_date = datetime.datetime.fromtimestamp(start // 1000)
+    end_date = datetime.datetime.fromtimestamp(end // 1000)
+
+    data = ssm.get_user_displacement(start_date, end_date)
+    return jsonify(data)
+
 # Offline method
 @app.route('/annotate')
 def annotate_tweets():

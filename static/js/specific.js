@@ -12,6 +12,81 @@ function getWordCount(category,start,end){
     })
 }
 
+function getUsersDisplacement(start,end){
+      $.get("/displacement?start="+start+"&end="+end,function(data){
+
+        displacementData = data
+        console.log(data)
+        createDisplacementChart(data)
+    })
+}
+
+var chartColor = {
+    "mobility": '#6baed6',
+    "dwelling": '#74c476',
+    "food": '#fe9929',
+    "leisure": '#f768a1'
+}
+
+function createDisplacementChart(data){
+
+    var category  = $("#map").data("category")
+
+    if(category!="mobility"){
+        return
+    }
+
+    var x = []
+    var y = []
+    for(k in data){
+        x.push(k)
+        y.push(data[k])
+    }
+
+    Highcharts.chart('displacement', {
+        chart: {
+            type: 'bar',
+            backgroundColor: "#eaeaea",
+
+        },
+        title: {
+            text: 'Users Displacement'
+        },
+        xAxis: {
+            categories: x,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Frequency',
+                align: 'high'
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Displacement',
+            data: y,
+            color:chartColor[category]
+        }]
+    });
+}
+
+
 function createChart(data,area){
 
     var chartData = _.chain(data)
@@ -49,12 +124,7 @@ function createChart(data,area){
     }
 
 
-    var chartColor = {
-        "mobility": '#6baed6',
-        "dwelling": '#74c476',
-        "food": '#fe9929',
-        "leisure": '#f768a1'
-    }
+
 
     var category  = $("#map").data("category")
 
@@ -112,12 +182,17 @@ function create_map(){
 
     myMap = L.map('map').setView(center, 11);
 
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A', {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A'
-    }).addTo(myMap);
+    var OpenStreetMap_Mapnik = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+	    maxZoom: 18,
+	    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    }).addTo(myMap)
+
+    //L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A', {
+    //    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+     //   maxZoom: 18,
+     //   id: 'mapbox.streets',
+    //    accessToken: 'pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A'
+    //}).addTo(myMap);
 
 }
 
@@ -140,6 +215,8 @@ function show_tweet_count(category, start,end){
     })
 
      getWordCount(category,start,end);
+     getUsersDisplacement(start,end);
+
 
 }
 function init(){
