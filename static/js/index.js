@@ -179,7 +179,7 @@ function init(){
     create_map()
 
     category = $("#map").data("category")
-    var start = moment().subtract(29, 'days');
+    var start = moment('2018-01-01')
     var end =  moment()
 
     $('#reportrange').daterangepicker({

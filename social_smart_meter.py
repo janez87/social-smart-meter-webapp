@@ -2,6 +2,8 @@ import math
 from configuration import configuration
 from shapely.geometry import shape, Point
 import geopy.distance
+from stop_words import get_stop_words
+
 
 
 class SocialSmartMeter:
@@ -13,7 +15,9 @@ class SocialSmartMeter:
             "name": configuration.AREA
         })
 
-        self.blacklist = ["boston","amp","careerarc","latest","hiring","click","xxx","xxxx"]
+        stop_words_list = get_stop_words("en")
+
+        self.blacklist = ["nah","just","one","new","now","last","massachusetts","boston","amp","careerarc","latest","hiring","click","xxx","xxxx"] + stop_words_list
 
     def get_words_count(self,start_date,end_date,category):
 
