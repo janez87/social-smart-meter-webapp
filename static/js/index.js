@@ -3,6 +3,7 @@ var geoJson;
 var data;
 var tweetsId = []
 
+
 function handleTweetNotification(t){
 
     var MAX = 20
@@ -202,7 +203,6 @@ function init(){
 
 
 init()
-
 
 // Map functions
 // Style functions

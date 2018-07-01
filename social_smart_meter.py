@@ -227,6 +227,36 @@ class SocialSmartMeter:
 
         return histogram
 
+    def get_labeled_tweets(self,start_date,end_date,category=None,area_name=None):
+
+        query = {
+            "date": {
+                "$gte": start_date,
+                "$lte": end_date
+            },
+            "area_name": {
+                "$exists": True
+            },
+            "categories.0":{
+                "$exists":True
+            }
+        }
+
+        project = {
+            "_id": 0, "id_str": 1, "categories": 1, "area_name": 1, "date": 1
+        }
+
+        if category is not None:
+            query["categories"] = category
+
+        if area_name is not None:
+            query["area_name"] = area_name
+
+        data = list(self.db["tweet"].find(query,project))
+
+        return data
+        
+
     # Offline methods
     def annotate_tweets_location(self):
         city = self.db["area"].find_one({
