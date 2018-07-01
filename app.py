@@ -123,6 +123,29 @@ def get_words_count():
 
     return jsonify(count)
 
+
+@app.route('/get_tweets')
+def get_raw_tweets():
+    start = int(request.args["start"])
+    end = int(request.args["end"])
+
+    if "category" in request.args:
+        category = request.args["category"]
+    else:
+        category = None
+
+    if "area_name" in request.args:
+        area_name = request.args["area_name"]
+    else:
+        area_name = None
+
+    start_date = datetime.datetime.fromtimestamp(start // 1000)
+    end_date = datetime.datetime.fromtimestamp(end // 1000)
+
+    data = ssm.get_labeled_tweets(start_date, end_date, category, area_name)
+
+    return jsonify(data)
+    
 # Offline method
 @app.route('/annotate')
 def annotate_tweets():
