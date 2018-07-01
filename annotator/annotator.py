@@ -120,7 +120,7 @@ class Annotator:
     def tokenize_offline(self):
         tweets = list(self.db["tweet"].find())
 
-        print("Updating tweets")
+        print("Tokenize tweets")
         for t in tweets:
             stop_words_list = get_stop_words("en")
 

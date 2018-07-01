@@ -14,11 +14,11 @@ class SocialSmartMeter:
             "name": configuration.AREA
         })
 
-        stop_words_list = get_stop_words("nl") + get_stop_words("en")
+        stop_words_list = get_stop_words("tr") + get_stop_words("en")
 
-        self.blacklist = ["let","stigmabase","can","volstrekt","adequate","handhaving","elke","stationary","olvgw","zorg","jan","olvgo","recap","waar","nederland","bla","und","lyf","day","amsterdam","amp","careerarc","latest","hiring","click","xxx","xxxx","rit","holland","netherlands","city","last","inzet","ambu"] + stop_words_list
+        self.blacklist = ["medical","amp","istanbul","stanbul"] + stop_words_list
 
-        self.bigrams_blacklist = ["inzet ambu","tooropstraat olvgw","amsterdam jan","jan tooropstraat","amsterdam oosterpark","amsterdam boelelaan" ,"rit amsterdam", "rit zorg", "rit ambu", "zorg rit", "ambu rit","oosterpark olvgo"]
+        self.bigrams_blacklist = []
 
     def get_words_count(self,start_date,end_date,category):
 

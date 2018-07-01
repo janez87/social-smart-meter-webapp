@@ -3,7 +3,10 @@ db.createView("tweet_count","tweet",[
         $match:{
             area_name:{
                 $exists:true
-            }
+            },
+             "tokens.3":{
+                    $exists:true
+                }
         }
 
     },

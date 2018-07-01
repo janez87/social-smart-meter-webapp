@@ -5,6 +5,11 @@
     max-width: 600px;
     margin: 0 auto;
 }
+
+html {
+    font-family: "Noto Naskh Arabic UI", "Noto Sans UI", sans-serif;
+
+}
 body {
     background-color: rgb(234, 234, 234);
 }

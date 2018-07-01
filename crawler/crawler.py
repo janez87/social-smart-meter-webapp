@@ -11,11 +11,11 @@ sys.path.append("../")
 from configuration import configuration as config
 from annotator.annotator import Annotator
 
-BOUNDING_BOX = [4.736851, 52.273948, 5.065755, 52.430806]  # Amsterdam
+#BOUNDING_BOX = [4.736851, 52.273948, 5.065755, 52.430806]  # Amsterdam
 #BOUNDING_BOX = [ -71.191421, 42.227797, -70.986004, 42.399542]  # Boston
 
 
-# BOUNDING_BOX = [28.4480, 40.8027, 29.4579, 41.2360] # Istanbul
+BOUNDING_BOX = [28.4480, 40.8027, 29.4579, 41.2360] # Istanbul
 
 class StreamCrawler(tweepy.StreamListener):
 

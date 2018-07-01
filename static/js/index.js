@@ -177,7 +177,7 @@ function init(){
     create_map()
 
     category = $("#map").data("category")
-    var start = moment().subtract(3, 'month');
+    var start = moment("2018-01-01")
     var end = moment()
 
     //var end =  moment().subtract(2, 'month')
