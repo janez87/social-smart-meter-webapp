@@ -146,6 +146,14 @@ def get_raw_tweets():
 
     return jsonify(data)
 
+
+@app.route('/shape')
+def get_shape():
+    city = configuration.AREA
+    shape = db["area"].find_one({"name": city})["geojson"]
+
+    return jsonify(shape)
+    
 # Offline method
 @app.route('/annotate')
 def annotate_tweets():
