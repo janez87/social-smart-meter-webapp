@@ -5,7 +5,6 @@ import geopy.distance
 from stop_words import get_stop_words
 
 
-
 class SocialSmartMeter:
 
     def __init__(self, db):
@@ -17,68 +16,82 @@ class SocialSmartMeter:
 
         stop_words_list = get_stop_words("en")
 
-        self.blacklist = ["nah","just","one","new","now","last","massachusetts","boston","amp","careerarc","latest","hiring","click","xxx","xxxx"] + stop_words_list
+        self.blacklist = ["nah", "just", "one", "new", "now", "last", "massachusetts", "boston", "amp", "careerarc",
+                          "latest", "hiring", "click", "xxx", "xxxx"] + stop_words_list
 
-    def get_words_count(self,start_date,end_date,category):
+    def get_words_count(self, start_date, end_date, category):
 
         print(start_date)
         print(end_date)
 
         match = {
-            "$match":{
-                "date":{
-                    "$gte":start_date,
-                    "$lte":end_date
+            "$match": {
+                "time": {
+                    "$gte": start_date,
+                    "$lte": end_date
                 },
-                "categories":category.upper(),
-                "area_name":{
-                    "$exists":True
+                "categories": category.lower(),
+                "area_name": {
+                    "$exists": True
                 },
-                "tokens.3":{
-                    "$exists":True
+                "output.{}.confidence".format(category.lower()): {
+                    "$gte": 0.25
                 }
             }
         }
 
         project = {
-            "$project":{
-                "tokens":1,
-                "area_name":1
+            "$project": {
+                "output.{}.terms".format(category.lower()): 1,
+                "area_name": 1
             }
         }
 
         unwind = {
-            "$unwind":"$tokens"
+            "$unwind": "$output.{}.terms".format(category.lower())
         }
 
-        blacklist = {
-            "$match":{"tokens":{"$nin":self.blacklist}}
+        # blacklist = {
+        #     "$match": {"tokens": {"$nin": self.blacklist}}
+        # }
+
+        projection_of_term_and_type = {
+            "$project": {
+                "term": "$output.{}.terms.term".format(category.lower()),
+                "data_type": "$output.{}.terms.data_type".format(category.lower()),
+                "area_name": "$area_name"
+            }
         }
+
         group = {
-            "$group":{
-                "_id":{
-                    "token":"$tokens",
-                    "area_name":"$area_name"
+            "$group": {
+                "_id": {
+                    "type": "$data_type",
+                    "area_name": "$area_name",
+                    "term": "$term"
                 },
-                "count":{
-                    "$sum":1
+                "count": {
+                    "$sum": 1
                 }
             }
         }
 
         final_projection = {
-            "$project":{
-                "count":1,
-                "token":"$_id.token",
-                "area_name":"$_id.area_name",
-                "_id":0
+            "$project": {
+                "count": 1,
+                "term": "$_id.term",
+                "type": "$_id.type",
+                "area_name": "$_id.area_name",
+                "_id": 0
             }
         }
-        counts = list(self.db["tweet"].aggregate([match,project,unwind, blacklist,group,final_projection]))
+
+        counts = list(self.db["amsterdam"].aggregate([match, project, unwind, projection_of_term_and_type, group,
+                                                      final_projection]))
 
         return counts
 
-    def get_tweet_count(self, start_date, end_date, category):
+    def get_post_count(self, start_date, end_date, category):
 
         query = {
             "$match": {
@@ -89,12 +102,11 @@ class SocialSmartMeter:
             }
         }
 
-
         group = {
             "$group": {
                 "_id": {
                     "area_name": "$_id.area_name",
-                    "category":"$_id.categories"
+                    "category": "$_id.categories"
                 },
                 "count": {
                     "$sum": "$count"
@@ -105,7 +117,7 @@ class SocialSmartMeter:
         project = {
             "$project": {
                 "area_name": "$_id.area_name",
-                "category":"$_id.category",
+                "category": "$_id.category",
                 "count": 1,
                 "_id": 0
             }
@@ -114,12 +126,12 @@ class SocialSmartMeter:
         print(query)
 
         if category is not None:
-            query["$match"]["_id.categories"] = category.upper()
+            query["$match"]["_id.categories"] = category.lower()
             del group["$group"]["_id"]["category"]
 
-        counts = list(self.db["tweet_count"].aggregate([query, group, project]))
+        counts = list(self.db["amsterdam_count"].aggregate([query, group, project]))
 
-        area = self.db["area"].find_one({"name": configuration.AREA},{"_id":0})
+        area = self.db["area"].find_one({"name": configuration.AREA}, {"_id": 0})
 
         total_by_area = []
         for a in area["geojson"]["features"]:
@@ -139,85 +151,86 @@ class SocialSmartMeter:
         print(max_count)
         # Normalizing
 
-        if max_count>0:
+        if max_count > 0:
             for a in area["geojson"]["features"]:
                 a["count"] = math.log(a["count"]+1)/max_count
 
         return area["geojson"]
 
-    def get_tweets(self,start,end,category):
+    def get_posts(self, start, end, category):
 
-        query={
+        query = {
             "date": {
                 "$gte": start,
                 "$lt": end
             }
         }
 
-        project= {
-            "_id":0
+        project = {
+            "_id": 0
         }
 
         if category is not None:
             query["categories"] = category
 
-        tweets = self.db["tweet"].find(query,project).sort([("date",-1)]).limit(50)
+        posts = self.db["demo"].find(query, project).sort([("date", -1)]).limit(50)
 
-        return list(tweets)
-
+        return list(posts)
 
     def get_user_displacement(self, start, end):
 
         match = {
-            "$match":{
-                "date": {
+            "$match": {
+                "time": {
                     "$gte": start,
                     "$lte": end
                 },
-                "categories":{
-                    "$exists":True
+                "categories": {
+                    "$exists": True
                 },
-                "area_name":{
-                    "$exists":True
+                "place.distance_to_previous": {
+                    "$exists": True
+                },
+                "area_name": {
+                    "$exists": True
                 }
             }
         }
 
         project = {
-            "$project":{
-                "coordinates":1,
-                "user.id":1
+            "$project": {
+                "place.distance_to_previous": 1,
+                "_id": 1
             }
         }
 
         group = {
-            "$group":{
-                "_id":"$user.id",
-                "trace":{
-                    "$push":"$coordinates.coordinates"
+            "$group": {
+                "_id": {
+                        "distance": "$place.distance_to_previous"
+                },
+                "count": {
+                    "$sum": 1
                 }
             }
         }
 
-        filter = {
-            "$match":{
-                "trace.1":{
-                    "$exists":True
-                }
+        final_projection = {
+            "$project": {
+                "count": 1,
+                "distance": "$_id.distance",
+                "_id": 0
             }
         }
 
-        data = list(self.db["tweet"].aggregate([match,project,group,filter]))
+        data = list(self.db["amsterdam"].aggregate([match, project, group, final_projection]))
 
         histogram = {}
-        for u in data:
-            points = u["trace"]
-            distance  = 0
-            for i in range(1,len(points)):
-                d = geopy.distance.vincenty(points[i],points[i-1])
-                distance += d.km
-
-            distance = math.ceil( distance / len(points))
+        for d in data:
+            distance = 0
+            if d["distance"]:
+                distance = d["distance"]
+                distance = math.ceil(distance)
 
             if distance in histogram:
                 histogram[distance] += 1
@@ -225,29 +238,3 @@ class SocialSmartMeter:
                 histogram[distance] = 1
 
         return histogram
-
-    # Offline methods
-    def annotate_tweets_location(self):
-        city = self.db["area"].find_one({
-            "name": configuration.AREA
-        })
-
-        areas = city["geojson"]["features"]
-
-        for area in areas:
-            print("Selecting tweets from area", area["properties"]["name"])
-
-            query = {
-                "$or": [{
-                    "coordinates": {
-                        "$geoWithin": {
-                            "$geometry": area["geometry"]
-                        }
-                    }
-                }, {
-                    "place.name": area["properties"]["name"]
-                }
-                ]
-            }
-            self.db["tweet"].update(query, {"$set": {"area_name": area["properties"]["name"]}}
-                                    , multi=True, upsert=False)
