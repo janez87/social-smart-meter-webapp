@@ -5,68 +5,159 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <meta name="author" content="">
-    <!--<link rel="icon" href="../../../../favicon.ico">-->
+    <meta name="author" content="R.E. de Kok, Delft University of Technology">
+    <!-- <link rel="icon" href="../../../../favicon.ico"> -->
 
     <title>Social Smart Meter</title>
 
     <!-- Bootstrap core CSS -->
-    <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
-    <link href="{{url_for('static',filename='css/open-iconic-bootstrap.min.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" />
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
-        crossorigin="anonymous">
+    <!-- Custom fonts for this template -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/font-awesome/css/font-awesome.min.css') }}" />
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+{#    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>#}
+{#    <link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet' type='text/css'>#}
+    <link href='https://fonts.googleapis.com/css?family=Gentium+Basic' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
-        crossorigin="" />
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="{{  url_for('static', filename='vendor/magnific-popup/magnific-popup.css') }}" >
 
-
+    <!-- Other (external) scripts -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="" />
+    <link rel="stylesheet" href="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.control.min.css" />
 
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
-
     <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/creative.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
 </head>
 
-<body>
+<body id="page-top">
 
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">Social Smart Meter</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Total <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="specific?category=mobility">Mobility</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="specific?category=dwelling">Dwelling</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="specific?category=food">Food</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="specific?category=leisure">Leisure</a>
-                </li>
-            </ul>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+      <div class="container">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top">Home</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#ssm">Social Smart Meter</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
 
-    <div role="main" class="container">
-
-        <div class="row text-center">
-            <div class="col-md-10 offset-md-1">
-                <h1 id="area">{{city|title}} - Overall Energy Consumption</h1>
-            </div>
+    <header class="masthead text-center text-white d-flex">
+      <div class="container my-auto">
+        <div class="row">
+          <div class="col-lg-10 mx-auto">
+            <h1 class="text-uppercase">
+              <strong>Social Smart Meter</strong>
+            </h1>
+            <hr>
+          </div>
+          <div class="col-lg-8 mx-auto">
+            <p class="text-faded mb-5">Automatic Processing of Social Media Data for the Description of Energy-Consuming Activities at the Individual and Group Level </p>
+            <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">Find Out More</a>
+          </div>
         </div>
+      </div>
+    </header>
+
+    <section class="bg-primary" id="about">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading text-white">What We Do</h2>
+            <hr class="light my-4">
+            <p class="text-faded mb-4"><b>TODO</b>: Short abstract of thesis about automatic processing of social media data for the description of energy-consuming activities at the individual and group level.</p>
+            <a class="btn btn-light btn-xl js-scroll-trigger" href="#ssm">Start Analyzing!</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ssm">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">Social Smart Meter</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-2 offset-lg-1 col-md-2 offset-md-1 text-center">
+            <div class="service-box mt-5 mx-auto">
+                <a class="nav-link js-scroll-trigger" href="#ssm">
+                    <i class="fa fa-4x fa-globe text-primary mb-3 sr-icons"></i>
+                    <h6 class="mb-3">OVERALL</h6>
+                    <span class="sr-only">(current)</span>
+                </a>
+{#                <p class="text-muted mb-0">Overall overview of energy consuming-activities</p>#}
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-2 text-center">
+            <div class="service-box mt-5 mx-auto">
+                <a class="nav-link" href="specific?category=dwelling">
+                    <i class="fa fa-4x fa-home text-primary mb-3 sr-icons"></i>
+                    <h6 class="mb-3">DWELLING</h6>
+                </a>
+{#              <p class="text-muted mb-0">Overview of energy-consuming activities of type dwelling</p>#}
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-2 text-center">
+            <div class="service-box mt-5 mx-auto">
+                <a class="nav-link" href="specific?category=food">
+                    <i class="fa fa-4x fa-apple text-primary mb-3 sr-icons"></i>
+                    <h6 class="mb-3">FOOD</h6>
+                </a>
+{#              <p class="text-muted mb-0">Overview of energy-consuming activities of type food consumption</p>#}
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-2 text-center">
+            <div class="service-box mt-5 mx-auto">
+                <a class="nav-link" href="specific?category=leisure">
+                    <i class="fa fa-4x fa-gamepad text-primary mb-3 sr-icons"></i>
+                    <h6 class="mb-3">LEISURE</h6>
+                </a>
+{#              <p class="text-muted mb-0">Overview of energy-consuming activities of type leisure</p>#}
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-2 text-center">
+            <div class="service-box mt-5 mx-auto">
+                <a class="nav-link" href="specific?category=mobility">
+                    <i class="fa fa-4x fa-car text-primary mb-3 sr-icons"></i>
+                    <h6 class="mb-3">MOBILITY</h6>
+                </a>
+{#              <p class="text-muted mb-0">Overview of energy-consuming activities of type mobility</p>#}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+            <div class="row mt-5 mx-auto">
+                <div class="col-md-10 offset-md-1">
+                    <hr class="my-4">
+                    <h4 class="mb-3 mx-auto text-center" id="area" >{{ city|title }}</h4>
+                    <p class="col-lg-12 mx-auto text-center">Overall overview of energy-consuming activities</p>
+                </div>
+            </div>
 
         <div class="row">
             <div class="col-md-8">
@@ -81,38 +172,135 @@
             <div class="offset-md-2 col-md-8">
                 <div id="reportrange" class="text-center" >
                     <span></span> <b class="caret"></b>
-                     &nbsp;<i class="oi oi-calendar fa fa-calendar"></i>
+                    <i class="fa fa-1x fa-calendar text-primary mb-3 sr-icons"></i>
                 </div>
             </div>
         </div>
+      </div>
 
-    </div>
-    <!-- /.container -->
+    </section>
 
+    <section class="p-0" id="projects">
+      <div class="container-fluid p-0">
+        <div class="row no-gutters popup-gallery">
+          <div class="col-lg-3 col-sm-6">
+            <a class="portfolio-box" href="../static/img/portfolio/fullsize/1.jpg">
+              <img class="img-fluid" src="../static/img/portfolio/thumbnails/1.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="portfolio-category text-faded">
+                    Project
+                  </div>
+                  <div class="portfolio-name">
+                    Amsterdam (Indische Buurt)
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6">
+            <a class="portfolio-box" href="../static/img/portfolio/fullsize/2.jpg">
+              <img class="img-fluid" src="../static/img/portfolio/thumbnails/2.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="portfolio-category text-faded">
+                    Project
+                  </div>
+                  <div class="portfolio-name">
+                    Amsterdam (Buiksloterham)
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6">
+            <a class="portfolio-box" href="../static/img/portfolio/fullsize/3.jpg">
+              <img class="img-fluid" src="../static/img/portfolio/thumbnails/3.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="portfolio-category text-faded">
+                    Project
+                  </div>
+                  <div class="portfolio-name">
+                    Graz
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6">
+            <a class="portfolio-box" href="../static/img/portfolio/fullsize/4.jpg">
+              <img class="img-fluid" src="../static/img/portfolio/thumbnails/4.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="portfolio-category text-faded">
+                    Project
+                  </div>
+                  <div class="portfolio-name">
+                    Istanbul
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading">Interested?</h2>
+            <hr class="my-4">
+            <p class="mb-5">Ready to start your next project with us? That's great! Give us a call or send us an email and we will get back to you as soon as possible!</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 ml-auto text-center">
+            <i class="fa fa-phone fa-3x mb-3 sr-contact"></i>
+            <p>+31 (0) 6 284 520 55</p>
+          </div>
+          <div class="col-lg-4 mr-auto text-center">
+            <i class="fa fa-envelope-o fa-3x mb-3 sr-contact"></i>
+            <p>
+              <a href="mailto:R.E.deKok@student.tudelft.nl">R.E.deKok@student.tudelft.nl</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" 
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
-        crossorigin="anonymous"></script>
-    
-  
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
-        crossorigin=""></script>
+
+    <script src="{{  url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{  url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <script src="{{  url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+    <script src="{{  url_for('static', filename='vendor/scrollreveal/scrollreveal.min.js') }}"></script>
+    <script src="{{  url_for('static', filename='vendor/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/nezasa/iso8601-js-period/master/iso8601.min.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.min.js"></script>
 
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
     <script sync src="https://platform.twitter.com/widgets.js"></script>
 
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script> 
-    
+    <script src="{{  url_for('static', filename='js/creative.min.js') }}"></script>
+    <script src="{{  url_for('static', filename='js/index.js') }}"></script>
 </body>
 
 </html>

@@ -7,26 +7,28 @@ function getWordCount(category,start,end){
 
     $.get("/get_words_count?start="+start+"&end="+end+"&category="+category,function(data){
 
-        wordCountData = data
-        createChart(data)
+        wordCountData = data;
+        createTextChart(data);
+        createImageChart(data);
+        createPlaceChart(data);
     })
 }
 
 function getUsersDisplacement(start,end){
       $.get("/displacement?start="+start+"&end="+end,function(data){
 
-        displacementData = data
-        console.log(data)
+        displacementData = data;
+        console.log(data);
         createDisplacementChart(data)
     })
 }
 
 var chartColor = {
-    "mobility": '#6baed6',
+    "mobility": '#00838F',
     "dwelling": '#74c476',
     "food": '#fe9929',
     "leisure": '#f768a1'
-}
+};
 
 function createDisplacementChart(data){
 
@@ -36,30 +38,34 @@ function createDisplacementChart(data){
         return
     }
 
-    var x = []
-    var y = []
+    var x = [];
+    var y = [];
     for(k in data){
-        x.push(k)
-        y.push(data[k])
+        x.push(k);
+        y.push(data[k]);
     }
 
     Highcharts.chart('displacement', {
         chart: {
             type: 'bar',
-            backgroundColor: "#eaeaea",
+            height: '600px'
 
         },
         title: {
-            text: 'Users Displacement'
+            text: 'DISPLACEMENT',
+            style: {
+                fontSize: '14px'
+            }
         },
         xAxis: {
             categories: x,
             title: {
-                text: null
+                text: 'Displacement (km)'
             }
         },
         yAxis: {
-            min: 0,
+            // min: 0,
+            type: 'logarithmic',
             title: {
                 text: 'Frequency',
                 align: 'high'
@@ -87,25 +93,33 @@ function createDisplacementChart(data){
 }
 
 
-function createChart(data,area){
+function createTextChart(data,area){
 
-    var chartData = _.chain(data)
+    var chartData = _.chain(data);
+
+    console.log(chartData);
+
+    chartData = chartData.filter(function(d){
+        return d.type === "text"
+    });
+
+    console.log(chartData);
 
     if(area){
-        console.log(area)
+        console.log(area);
         chartData = chartData.filter(function(d){
             return d.area_name === area
         })
     }
 
-    chartData = chartData.groupBy("token")
+    chartData = chartData.groupBy("term")
     .map(function(value, key) {
         return [key, _.reduce(value, function(result, currentObject) {
             return {
-                count: result.count + currentObject.count,
+                count: result.count + currentObject.count
             }
         }, {
-            count: 0,
+            count: 0
         })];
     })
     .sortBy(function(d){
@@ -113,29 +127,27 @@ function createChart(data,area){
     })
     .value();
 
-    chartData = chartData.slice(0,10)
+    chartData = chartData.slice(0,10);
 
-    var x = []
-    var y = []
+    var x = [];
+    var y = [];
 
     for(var i=0;i<chartData.length;i++){
-        x.push(chartData[i][0])
+        x.push(chartData[i][0]);
         y.push(chartData[i][1].count)
     }
 
+    var category  = $("#map").data("category");
 
-
-
-    var category  = $("#map").data("category")
-
-    Highcharts.chart('chart', {
+    Highcharts.chart('text_chart', {
         chart: {
-            type: 'bar',
-            backgroundColor: "#eaeaea",
-
+            type: 'bar'
         },
         title: {
-            text: 'Top 10 Frequent Terms'
+            text: 'TOP 10 FREQUENT TEXT TERMS',
+            style: {
+                fontSize: '14px'
+            }
         },
         xAxis: {
             categories: x,
@@ -146,8 +158,7 @@ function createChart(data,area){
         yAxis: {
             min: 0,
             title: {
-                text: 'Frequency',
-                align: 'high'
+                text: null
             },
             labels: {
                 overflow: 'justify'
@@ -171,14 +182,183 @@ function createChart(data,area){
     });
 }
 
+function createImageChart(data,area){
+
+    var chartData = _.chain(data);
+
+    chartData = chartData.filter(function(d){
+        return d.type === "image"
+    });
+
+    if(area){
+        console.log(area);
+        chartData = chartData.filter(function(d){
+            return d.area_name === area
+        })
+    }
+
+    chartData = chartData.groupBy("term")
+    .map(function(value, key) {
+        return [key, _.reduce(value, function(result, currentObject) {
+            return {
+                count: result.count + currentObject.count
+            }
+        }, {
+            count: 0
+        })];
+    })
+    .sortBy(function(d){
+        return -d[1].count
+    })
+    .value();
+
+    chartData = chartData.slice(0,10);
+
+    var x = [];
+    var y = [];
+
+    for(var i=0;i<chartData.length;i++){
+        x.push(chartData[i][0]);
+        y.push(chartData[i][1].count)
+    }
+
+    var category  = $("#map").data("category");
+
+    Highcharts.chart('image_chart', {
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'TOP 10 FREQUENT IMAGE TERMS',
+            style: {
+                fontSize: '14px'
+            }
+        },
+        xAxis: {
+            categories: x,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: null
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Frequency',
+            data: y,
+            color:chartColor[category]
+        }]
+    });
+}
+
+function createPlaceChart(data,area){
+
+    var chartData = _.chain(data);
+
+    chartData = chartData.filter(function(d){
+        return d.type === "place"
+    });
+
+    if(area){
+        console.log(area);
+        chartData = chartData.filter(function(d){
+            return d.area_name === area
+        })
+    }
+
+    chartData = chartData.groupBy("term")
+    .map(function(value, key) {
+        return [key, _.reduce(value, function(result, currentObject) {
+            return {
+                count: result.count + currentObject.count
+            }
+        }, {
+            count: 0
+        })];
+    })
+    .sortBy(function(d){
+        return -d[1].count
+    })
+    .value();
+
+    chartData = chartData.slice(0,10);
+
+    var x = [];
+    var y = [];
+
+    for(var i=0;i<chartData.length;i++){
+        x.push(chartData[i][0]);
+        y.push(chartData[i][1].count)
+    }
+
+    var category  = $("#map").data("category");
+
+    Highcharts.chart('place_chart', {
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'TOP 10 FREQUENT PLACE TERMS',
+            style: {
+                fontSize: '14px'
+            }
+        },
+        xAxis: {
+            categories: x,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: null
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Frequency',
+            data: y,
+            color:chartColor[category]
+        }]
+    });
+}
 
 function create_map(){
 
-    var center = $("#map").data("centroid")
+    var center = $("#map").data("centroid");
 
-    var temp = center[0]
-    center[0] = center[1]
-    center[1] = temp
+    var temp = center[0];
+    center[0] = center[1];
+    center[1] = temp;
 
     myMap = L.map('map').setView(center, 11);
 
@@ -187,45 +367,38 @@ function create_map(){
 	    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     }).addTo(myMap)
 
-    //L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A', {
-    //    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-     //   maxZoom: 18,
-     //   id: 'mapbox.streets',
-    //    accessToken: 'pk.eyJ1IjoiamFuZXo4NyIsImEiOiJjaW9rNnN6dW4wMDlqdW5reDVnMmZtMW85In0.zA4QBENdLvkqK69ELa74_A'
-    //}).addTo(myMap);
-
 }
 
-function show_tweet_count(category, start,end){
+function show_post_count(category, start,end){
 
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 
 
-    $.get("/get_geo_tweet_count?start="+start+"&end="+end+"&category="+category,function(res){
+    $.get("/get_geo_post_count?start="+start+"&end="+end+"&category="+category,function(res){
         console.log(res)
-        data=res
-         if(geoJson){
-             geoJson.clearLayers()
-             geoJson.addData(data)
+        data=res;
+         if(geoJson) {
+             geoJson.clearLayers();
+             geoJson.addData(data);
              geoJson.setStyle(style)
-         }else{
+         } else {
             geoJson = L.geoJson(data,{style:style,onEachFeature:onEachFeature}).addTo(myMap)
          }
 
-    })
+    });
 
      getWordCount(category,start,end);
      getUsersDisplacement(start,end);
 
-
 }
+
 function init(){
 
-    create_map()
+    create_map();
 
-    var category = $("#map").data("category")
-    var start = moment('2018-01-01')
-    var end =  moment()
+    var category = $("#map").data("category");
+    var start = moment('2018-01-01');
+    var end =  moment();
 
     $('#reportrange').daterangepicker({
         startDate: start,
@@ -238,41 +411,41 @@ function init(){
             'This Month': [moment().startOf('month'), moment().endOf('month')],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
-    }, show_tweet_count.bind(null,category));
+    }, show_post_count.bind(null,category));
 
-    show_tweet_count(category,start, end);
+    show_post_count(category,start, end);
 }
 
-
-init()
+init();
 
 // Map functions
 // Style functions
 function getColor(d,category) {
 
     var colorsMap = {
-        "mobility": ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'],
-        "dwelling": ['#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476','#41ab5d','#238b45','#006d2c','#00441b'],
-        "food": ['#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506'],
-        "leisure": ['#fff7f3','#fde0dd','#fcc5c0','#fa9fb5','#f768a1','#dd3497','#ae017e','#7a0177','#49006a']
-    }
+        "dwelling": ['#F1F8E9', '#DCEDC8','#C5E1A5','#AED581','#9CCC65','#8BC34A','#7CB342','#689F38','#558B2F','#33691E'],
+        "food": ['#FFF3E0', '#FFE0B2','#FFCC80','#FFB74D','#FFA726','#FF9800','#FB8C00','#F57C00','#EF6C00','#E65100'],
+        "leisure": ['#FCE4EC', '#F8BBD0','#F48FB1','#F06292','#EC407A','#E91E63','#D81B60','#C2185B','#AD1457','#880E4F'],
+        "mobility": ['#E0F7FA', '#B2EBF2','#80DEEA','#4DD0E1','#26C6DA','#00BCD4','#00ACC1','#0097A7','#00838F','#006064']
+    };
 
-    var colors = colorsMap[category]
+    var colors = colorsMap[category];
 
-    return d >= 1 ? colors[8] :
-           d > 0.9  ? colors[7] :
-           d > 0.8  ? colors[6] :
-           d > 0.7  ? colors[5] :
-           d > 0.6   ? colors[4] :
-           d > 0.5   ? colors[3] :
-           d > 0.4  ? colors[2] :
-           d > 0.3  ? colors[1] :
-                      colors[0];
+    return d >= 1 ? colors[9] :
+           d > 0.9 ? colors[8] :
+           d > 0.8 ? colors[7] :
+           d > 0.7 ? colors[6] :
+           d > 0.6 ? colors[5] :
+           d > 0.5 ? colors[4] :
+           d > 0.4 ? colors[3] :
+           d > 0.3 ? colors[2] :
+           d > 0.2 ? colors[1] :
+                     colors[0];
 }
 
 function style(feature) {
-    var count = feature.count || 0
-    var category = $("#map").data("category")
+    var count = feature.count || 0;
+    var category = $("#map").data("category");
     return {
         fillColor: getColor(count, category),
         weight: 2,
@@ -306,15 +479,19 @@ function resetHighlight(e) {
 
 function zoomToFeature(e) {
     myMap.fitBounds(e.target.getBounds());
-    var name = e.target.feature.properties.name
-    var category = $("#map").data("category").replace(/\b\w/g, l => l.toUpperCase())
-    $("#area").text(name+" - "+ category+" Energy Consumption")
+    var name = e.target.feature.properties.name;
+    var category = $("#map").data("category").replace(/\b\w/g, l => l.toLowerCase())
+
+    $("#area").text(name);
 
     var selected = data.features.find(function(a){
         return a.properties.name === name
-    })
-    createChart(wordCountData,selected.properties.name)
+    });
+    createTextChart(wordCountData,selected.properties.name);
+    createImageChart(wordCountData,selected.properties.name);
+    createPlaceChart(wordCountData,selected.properties.name);
 }
+
 function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,

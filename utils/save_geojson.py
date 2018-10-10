@@ -18,8 +18,8 @@ print("Opening the geojson file")
 data = json.load(open(geojson))
 
 to_save = {
-    "name":"boston",
-    "geojson":data
+    "name": "amsterdam",
+    "geojson": data
 }
 
 print("Saving")

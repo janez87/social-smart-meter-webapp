@@ -1,27 +1,29 @@
-#map { height: 360px; }
+body,
+
+body {
+  background-color: #fff;
+}
+
+.container {
+  padding-top: 0px;
+}
+
+#map { height: 400px; }
+
 #chart {
     width:100%;
     min-width: 310px;
     max-width: 600px;
     margin: 0 auto;
 }
-body {
-    background-color: rgb(234, 234, 234);
-}
-.container {
-    padding-top: 100px;
-}
 
 #reportrange {
     background: #fff;
     cursor: pointer;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    margin-top: 10px;
-
+    padding: 20px 20px;
+    margin-top: 20px;
 }
 
 .twitter-tweet .twitter-tweet-rendered{
     height:200px !important;
 }
-
