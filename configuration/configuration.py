@@ -1,6 +1,6 @@
 DB_PORT = 27017
 DB_HOST = "localhost"
-DB_NAME = "SSM"
+DB_NAME = "ssm_2"
 
 #Socket IO
 SOCKETIO_HOST = "localhost"
@@ -17,4 +17,4 @@ CONSUMER_SECRET = ""
 ACCESS_TOKEN = ""
 ACCESS_TOKEN_SECRET = ""
 
-AREA = ""
+AREA = "amsterdam"
