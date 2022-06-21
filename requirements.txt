@@ -16,7 +16,7 @@ itsdangerous==0.24
 Jinja2==2.10
 jmespath==0.9.3
 MarkupSafe==1.0
-numpy==1.14.1
+numpy==1.22.0
 oauthlib==2.0.6
 pymongo==3.6.0
 python-dateutil==2.7.0
